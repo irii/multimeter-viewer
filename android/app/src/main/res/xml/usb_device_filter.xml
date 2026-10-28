@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- FTDI (0x0403), the USB-serial chip of the Fluke IR cable. -->
+    <usb-device vendor-id="1027" />
+</resources>

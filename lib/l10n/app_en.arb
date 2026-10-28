@@ -1,0 +1,413 @@
+{
+  "@@locale": "en",
+  "settings": "Settings",
+  "language": "Language",
+  "languageSystem": "System",
+  "languageGerman": "Deutsch",
+  "languageEnglish": "English",
+  "theme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "actionClose": "Close",
+  "actionCancel": "Cancel",
+  "actionOpenRecording": "Open recording",
+  "actionRescan": "Search again",
+  "availableMeters": "Available meters",
+  "connectInstructions": "Plug in the IR USB cable, attach it to the meter and switch the meter on. Meters are searched automatically.",
+  "scanFailed": "Search failed",
+  "noMeterFound": "No {models} found",
+  "@noMeterFound": {
+    "placeholders": {
+      "models": {
+        "type": "String"
+      }
+    }
+  },
+  "noMeterFoundHint": "Is the meter switched on and the IR adapter attached correctly? Then “Search again”.",
+  "searchingMeters": "Searching for meters …",
+  "cablesWithoutMeter": "Cables without meter",
+  "grantUsbCable": "Allow USB cable …",
+  "cableName": "Cable: {name}",
+  "@cableName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modelUntested": "Model not tested – display may be incomplete",
+  "actionConnect": "Connect",
+  "openSavedRecording": "Open saved recording",
+  "openSavedRecordingSubtitle": "Show a CSV file, even without a meter",
+  "connectionFailed": "Connection failed",
+  "noMeterResponds": "No meter responds",
+  "hintLibusbMissing": "libusb is not installed (macOS: brew install libusb, Linux: apt install libusb-1.0-0, Windows: put libusb-1.0.dll next to the app).",
+  "hintDriverBusy": "The cable is claimed by an operating system driver or permissions are missing. Linux: unbind ftdi_sio and add a udev rule; Windows: switch the cable to WinUSB with Zadig. See README.",
+  "hintNoWebUsb": "This browser does not support WebUSB. Please use Chrome or Edge (HTTPS or localhost).",
+  "hintNoResponse": "The meter does not respond. Is it switched on and the IR adapter attached correctly?",
+  "compactViewTooltip": "Compact view (always on top)",
+  "actionDisconnect": "Disconnect",
+  "notConnected": "No connection to the meter",
+  "backToDeviceSelection": "Back to device selection",
+  "compactViewUnavailable": "Compact view not available: {error}",
+  "@compactViewUnavailable": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "recordingStopTooltip": "Stop recording",
+  "recordingStartTooltip": "Start recording",
+  "recordingSaveOrDiscardFirst": "Save or discard the recording first",
+  "dangerousVoltage": "Hazardous voltage",
+  "rangeAuto": "Auto",
+  "rangeManual": "Manual",
+  "minMaxSince": "Min Max since {time}",
+  "@minMaxSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "alwaysOnTopOff": "Do not keep on top",
+  "alwaysOnTopOn": "Always on top",
+  "normalView": "Normal view",
+  "newRecording": "New recording",
+  "recordingNameLabel": "Recording name *",
+  "recordingNameRequired": "Please enter a name",
+  "identifierLabel": "Identifier",
+  "identifierHint": "e.g. customer number",
+  "commentLabel": "Comment",
+  "lengthLabel": "Length *",
+  "lengthInvalid": "Enter a length greater than 0",
+  "durationUnitLabel": "Unit",
+  "unitSeconds": "Seconds",
+  "unitMinutes": "Minutes",
+  "unitHours": "Hours",
+  "waitingForReadings": "Waiting for readings …",
+  "history": "Trend",
+  "historyWithUnit": "Trend – {unit}",
+  "@historyWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "timeBaseMeter": "Meter time",
+  "timeBaseMeterTooltip": "Timestamps of the meter",
+  "timeBaseSystem": "System time",
+  "timeBaseSystemTooltip": "Time this computer received the reading",
+  "axisClock": "Time of day",
+  "axisTime": "Time",
+  "axisTimeSeconds": "Time [s]",
+  "recordingActive": "Recording: {name}",
+  "@recordingActive": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "actionStop": "Stop",
+  "sampleCount": "{count, plural, =1{1 reading} other{{count} readings}}",
+  "@sampleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recordingSaved": "Recording “{name}” saved",
+  "@recordingSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saveFailed": "Saving failed: {error}",
+  "@saveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "recordingFinished": "Recording “{name}” finished",
+  "@recordingFinished": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "actionDiscard": "Discard",
+  "actionShow": "Show",
+  "actionSave": "Save",
+  "stopReasonStopped": "Stopped early",
+  "stopReasonDisconnected": "Meter disconnected",
+  "recording": "Recording",
+  "noRecordingLoaded": "No recording loaded",
+  "loadingFailed": "Loading failed",
+  "recordingHasNoSamples": "The recording contains no readings.",
+  "startMeter": "Start (meter)",
+  "endMeter": "End (meter)",
+  "startSystem": "Start (system)",
+  "meterClockOffset": "Meter clock vs. system",
+  "duration": "Duration",
+  "durationOf": "{actual} of {planned}",
+  "@durationOf": {
+    "placeholders": {
+      "actual": {
+        "type": "String"
+      },
+      "planned": {
+        "type": "String"
+      }
+    }
+  },
+  "readings": "Readings",
+  "model": "Model",
+  "serialNumber": "Serial number",
+  "firmware": "Firmware",
+  "endedLabel": "Ended",
+  "statMinimum": "Minimum",
+  "statMaximum": "Maximum",
+  "statAverage": "Average",
+  "overloadInvalid": "OL / invalid",
+  "recordingWithUnit": "Recording – {unit}",
+  "@recordingWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "zoomOut": "Zoom out",
+  "zoomIn": "Zoom in",
+  "zoomReset": "Reset zoom",
+  "zoomHint": "Mouse wheel or two-finger gesture to zoom, drag to pan",
+  "noValidReadings": "No valid readings",
+  "errorConnectionLost": "Connection lost: {error}",
+  "@errorConnectionLost": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorCableRemoved": "The USB cable was disconnected.",
+  "errorAckSyntax": "{command}: syntax error",
+  "@errorAckSyntax": {
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "errorAckExecution": "{command}: execution error",
+  "@errorAckExecution": {
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "errorAckNoData": "{command}: no data available",
+  "@errorAckNoData": {
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "errorAckUnexpected": "{command}: unexpected response “{response}”",
+  "@errorAckUnexpected": {
+    "placeholders": {
+      "command": {
+        "type": "String"
+      },
+      "response": {
+        "type": "String"
+      }
+    }
+  },
+  "errorNoResponse": "{command}: no response from the meter",
+  "@errorNoResponse": {
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "errorInvalidData": "Invalid data from the meter: {detail}",
+  "@errorInvalidData": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDeviceGone": "Device no longer available, please search again.",
+  "errorDeviceInUse": "The meter is already connected.",
+  "errorOpenFile": "File could not be opened: {error}",
+  "@errorOpenFile": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorFileWithReason": "{file}: {error}",
+  "@errorFileWithReason": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorRecordingMissingColumn": "Invalid recording file: column “{column}” is missing",
+  "@errorRecordingMissingColumn": {
+    "placeholders": {
+      "column": {
+        "type": "String"
+      }
+    }
+  },
+  "errorRecordingNoTable": "Invalid recording file: no reading table found",
+  "errorRecordingInvalidTime": "Invalid recording file: line {line} has an invalid time",
+  "@errorRecordingInvalidTime": {
+    "placeholders": {
+      "line": {
+        "type": "int"
+      }
+    }
+  },
+  "fnTemperature": "Temperature",
+  "fnResistance": "Resistance",
+  "fnConductance": "Conductance",
+  "fnContinuity": "Continuity",
+  "fnCapacitance": "Capacitance",
+  "fnDiodeTest": "Diode test",
+  "fnFrequency": "Frequency",
+  "fnDutyCycle": "Duty cycle",
+  "fnPulseWidth": "Pulse width",
+  "fnCrestFactor": "Crest factor",
+  "modeLowPass": "Low pass",
+  "modeRecord": "Record",
+  "attrOpen": "Open",
+  "attrShort": "Short",
+  "attrGoodDiode": "Good diode",
+  "attrNegativeEdge": "Edge −",
+  "attrPositiveEdge": "Edge +",
+  "attrHighCurrent": "High current",
+  "readingPrimary": "Primary",
+  "readingSecondary": "Secondary",
+  "readingMinimum": "Minimum",
+  "readingMaximum": "Maximum",
+  "readingAverageShort": "Avg",
+  "readingAverage": "Average",
+  "readingRelReference": "Rel reference",
+  "readingDbReference": "dB reference",
+  "readingTempOffset": "Temp offset",
+  "meterMemory": "Meter memory",
+  "memoryRecordings": "Recordings",
+  "memoryMinMax": "Min/Max sessions",
+  "memoryPeak": "Peak sessions",
+  "memoryMeasurements": "Saved measurements",
+  "memoryEmpty": "The meter memory is empty.",
+  "memoryReading": "Reading meter memory …",
+  "memoryReadFailed": "Reading the memory failed",
+  "actionRetry": "Retry",
+  "actionDownload": "Load",
+  "actionCancelDownload": "Cancel download",
+  "memoryInterval": "Interval {interval}",
+  "@memoryInterval": {
+    "placeholders": {
+      "interval": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadProgress": "{done} of {total}",
+  "@downloadProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadCancelled": "Download cancelled",
+  "downloadFailed": "Download failed: {error}",
+  "@downloadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "unnamed": "(unnamed)",
+  "memoryDownloadHint": "Recordings are read sample by sample; long recordings take a while.",
+  "about": "About",
+  "aboutDescription": "Shows the live readings of Fluke 287 and 289 multimeters, records them and reads recordings from the meter memory.",
+  "version": "Version",
+  "developer": "Developer",
+  "sourceCode": "Source code",
+  "license": "License",
+  "openSourceLicenses": "Open-source licenses",
+  "openSourceLicensesHint": "Licenses of all libraries used",
+  "disclaimer": "Provided “as is”, without warranty. Do not rely on it for safety-relevant measurements.",
+  "trademarkNotice": "Fluke is a trademark of Fluke Corporation. This project is not affiliated with or endorsed by Fluke Corporation.",
+  "linkCouldNotOpen": "Could not open {url}",
+  "@linkCouldNotOpen": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "memoryNoEntries": "No entries",
+  "originLabel": "Source",
+  "originApp": "Recorded by the app",
+  "originMeter": "Meter memory",
+  "fileLabel": "File",
+  "notSaved": "Not saved",
+  "actionExportCsv": "Export as CSV",
+  "sampleIntervalLabel": "Interval",
+  "eventThresholdLabel": "Event threshold",
+  "rangeLabel": "Range",
+  "recordingExported": "Exported as {fileName}",
+  "@recordingExported": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutTooltip": "About · version {version}",
+  "@aboutTooltip": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "licenseCount": "{count, plural, =1{1 license} other{{count} licenses}}",
+  "@licenseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}
