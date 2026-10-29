@@ -5,6 +5,9 @@ import 'package:multimeter_viewer/fluke/qdda.dart';
 import 'package:multimeter_viewer/recording/recording_csv.dart';
 import 'package:multimeter_viewer/ui/recording_page.dart';
 import 'package:multimeter_viewer/ui/meter_page.dart';
+import 'package:multimeter_viewer/ui/widgets/meter_properties_card.dart';
+import 'package:multimeter_viewer/ui/widgets/primary_display.dart';
+import 'package:multimeter_viewer/fluke/meter_properties.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -200,6 +203,63 @@ void main() {
     expect(find.text('FLUKE 287'), findsOneWidget);
     expect(find.text('FW V2.02 · SN 12345678'), findsOneWidget);
     expect(find.text(' 7.312'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
+  });
+
+  testWidgets('desktop: live display and meter info are equally tall', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      MultimeterViewerApp(
+        settingsStore: MemorySettingsStore(),
+        initialSettings: germanSettings,
+        discovery: FakeDiscovery(
+          link: FakeLink(
+            properties: const MeterProperties(
+              company: 'ACME',
+              operator: 'Max Muster',
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Verbinden'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    final live = tester.getRect(find.byType(PrimaryDisplay));
+    final info = tester.getRect(find.byType(MeterPropertiesCard));
+    expect(info.height, live.height);
+    expect(info.top, live.top);
+    expect(find.text('Max Muster'), findsOneWidget);
+
+    // Edit, save, and the page still reacts.
+    await tester.tap(find.byTooltip('Geräteinfo bearbeiten'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Standort'),
+      'Halle 3',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Speichern'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.text('Halle 3'), findsOneWidget);
+    await tester.tap(find.byTooltip('Geräteinfo bearbeiten'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Abbrechen'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 1));

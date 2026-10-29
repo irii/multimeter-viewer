@@ -1,3 +1,5 @@
+import 'dart:ui' show AppExitResponse;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -68,11 +70,29 @@ class _MultimeterViewerAppState extends State<MultimeterViewerApp> {
     widget.initialSettings,
   );
   late final GoRouter _router = createRouter(_meterBloc);
+  late final AppLifecycleListener _lifecycle;
 
   @override
   void initState() {
     super.initState();
     AppMenu.listen(_onMenuCommand);
+    _lifecycle = AppLifecycleListener(onExitRequested: _onExitRequested);
+  }
+
+  /// Closes the meter connection and the USB backend before the app quits
+  /// (desktop: last window closed, Cmd+Q). Without this, quitting hangs
+  /// until libusb's event isolate wakes up by itself.
+  Future<AppExitResponse> _onExitRequested() async {
+    try {
+      await _meterBloc.close().timeout(const Duration(seconds: 1));
+    } catch (_) {
+      // Quit anyway.
+    }
+    _discovery.dispose();
+    // The backend stops its event isolate asynchronously and offers nothing
+    // to await; this is enough for it once no transfer is in flight.
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    return AppExitResponse.exit;
   }
 
   /// "About" and "Settings…" from the native app menu (macOS).
@@ -98,6 +118,7 @@ class _MultimeterViewerAppState extends State<MultimeterViewerApp> {
   @override
   void dispose() {
     AppMenu.stopListening();
+    _lifecycle.dispose();
     _router.dispose();
     _settingsCubit.close();
     _compactCubit.close();

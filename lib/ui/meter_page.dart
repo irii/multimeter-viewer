@@ -193,6 +193,11 @@ class _MeterBody extends StatelessWidget {
       children: [for (final r in extras) ReadingCard(reading: r)],
     );
 
+    final statusAndExtras = [
+      if (StatusChips.hasChips(display)) StatusChips(display: display),
+      if (extras.isNotEmpty) extrasWrap,
+    ].separatedBy(const SizedBox(height: 12));
+
     return LayoutBuilder(
       builder: (context, constraints) {
         // Desktop: readings in one row, the chart below fills the rest.
@@ -203,27 +208,33 @@ class _MeterBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const RecordingBanner(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 3, child: PrimaryDisplay(display: display)),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ...[
-                            if (StatusChips.hasChips(display))
-                              StatusChips(display: display),
-                            if (extras.isNotEmpty) extrasWrap,
-                            ?propertiesCard,
-                          ].separatedBy(const SizedBox(height: 12)),
-                        ],
+                // Live display and meter info side by side, equally tall;
+                // modes and extra readings below them.
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: PrimaryDisplay(display: display),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child:
+                            propertiesCard ??
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: statusAndExtras,
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
+                if (propertiesCard != null && statusAndExtras.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  ...statusAndExtras,
+                ],
                 const SizedBox(height: 12),
                 Expanded(
                   child: HistoryChart(history: state.history, expand: true),

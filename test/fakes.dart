@@ -171,6 +171,11 @@ class FakeDiscovery implements MeterDiscovery {
   @override
   Future<void> requestDevice() async {}
 
+  bool disposed = false;
+
+  @override
+  void dispose() => disposed = true;
+
   @override
   Future<MeterLink> connect(MeterCandidate candidate) async => link;
 

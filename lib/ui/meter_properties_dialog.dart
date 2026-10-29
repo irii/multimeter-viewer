@@ -54,7 +54,7 @@ class _MeterPropertiesDialogState extends State<_MeterPropertiesDialog> {
             name: controller.text,
         }),
       );
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) _close();
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -63,6 +63,14 @@ class _MeterPropertiesDialogState extends State<_MeterPropertiesDialog> {
         });
       }
     }
+  }
+
+  /// Ends text input before the dialog goes away. On macOS, closing it
+  /// while a field still has the keyboard focus can leave the window
+  /// ignoring clicks until it is deactivated and activated again.
+  void _close() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    Navigator.of(context).pop();
   }
 
   @override
@@ -74,64 +82,71 @@ class _MeterPropertiesDialogState extends State<_MeterPropertiesDialog> {
       'site': (Icons.place_outlined, l10n.propertySite),
       'contact': (Icons.contact_mail_outlined, l10n.propertyContact),
     };
-    return AlertDialog(
-      icon: const Icon(Icons.edit_outlined),
-      title: Text(l10n.meterPropertiesEdit),
-      content: SizedBox(
-        width: 420,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final name in MeterProperties.names) ...[
-                TextField(
-                  controller: _controllers[name],
-                  enabled: !_saving,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      MeterProperties.allowedCharacters,
+    // Also when closed with Escape or a click next to the dialog.
+    return PopScope(
+      onPopInvokedWithResult: (_, _) =>
+          FocusManager.instance.primaryFocus?.unfocus(),
+      child: AlertDialog(
+        icon: const Icon(Icons.edit_outlined),
+        title: Text(l10n.meterPropertiesEdit),
+        content: SizedBox(
+          width: 420,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final name in MeterProperties.names) ...[
+                  TextField(
+                    controller: _controllers[name],
+                    enabled: !_saving,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        MeterProperties.allowedCharacters,
+                      ),
+                    ],
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(labels[name]!.$1),
+                      labelText: labels[name]!.$2,
+                      border: const OutlineInputBorder(),
                     ),
-                  ],
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(labels[name]!.$1),
-                    labelText: labels[name]!.$2,
-                    border: const OutlineInputBorder(),
+                    onSubmitted: (_) => _save(),
                   ),
-                  onSubmitted: (_) => _save(),
-                ),
-                const SizedBox(height: 12),
-              ],
-              Text(
-                l10n.meterPropertiesHint,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 8),
+                  const SizedBox(height: 12),
+                ],
                 Text(
-                  l10n.saveFailed(l10n.error(_error!)),
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  l10n.meterPropertiesHint,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
+                if (_error != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.saveFailed(l10n.error(_error!)),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: _saving ? null : _close,
+            child: Text(l10n.actionCancel),
+          ),
+          FilledButton(
+            onPressed: _saving ? null : _save,
+            child: _saving
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.actionSave),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: _saving ? null : () => Navigator.of(context).pop(),
-          child: Text(l10n.actionCancel),
-        ),
-        FilledButton(
-          onPressed: _saving ? null : _save,
-          child: _saving
-              ? const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(l10n.actionSave),
-        ),
-      ],
     );
   }
 }

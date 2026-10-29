@@ -13,6 +13,14 @@ UsbBackend createUsbBackend() => Platform.isAndroid
     ? AndroidUsbBackend(transferMode: _transferMode)
     : NativeUsbBackend(transferMode: _transferMode);
 
+/// Stops libusb's event isolate. It waits inside libusb for events, which
+/// keeps the app from quitting until it is told to stop.
+void disposeUsbBackend(UsbBackend backend) => switch (backend) {
+  NativeUsbBackend() => backend.dispose(),
+  AndroidUsbBackend() => backend.dispose(),
+  _ => null,
+};
+
 /// Whether the app asks for USB permission by itself (Android), so no
 /// "allow cable" button is needed.
 bool usbPermissionsAutomatic(UsbBackend backend) =>

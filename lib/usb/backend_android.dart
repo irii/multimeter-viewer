@@ -56,6 +56,9 @@ class AndroidUsbBackend implements UsbBackend {
   @override
   bool get kernelDriverDetachSupported => _native.kernelDriverDetachSupported;
 
+  /// Stops libusb's event isolate (see [disposeUsbBackend]).
+  void dispose() => _native.dispose();
+
   Future<List<AndroidUsbDevice>> _list(List<UsbDeviceFilter> filters) async {
     final list = await _methods.invokeListMethod<Object?>('listDevices') ?? [];
     return [

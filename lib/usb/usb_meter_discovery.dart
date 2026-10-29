@@ -95,6 +95,12 @@ class UsbMeterDiscovery implements MeterDiscovery {
   }
 
   @override
+  void dispose() {
+    final backend = _backendInstance;
+    if (backend != null) disposeUsbBackend(backend);
+  }
+
+  @override
   Future<void> requestDevice() async {
     if (!_backend.requestDeviceRequired) return;
     await _backend.requestDevice(filters: _filters);

@@ -72,4 +72,8 @@ abstract interface class MeterDiscovery {
 
   /// Fires when a cable is plugged in or removed.
   Stream<void> get onDevicesChanged;
+
+  /// Releases the USB backend when the app quits; the discovery must not be
+  /// used afterwards.
+  void dispose();
 }
