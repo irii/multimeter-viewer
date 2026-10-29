@@ -43,3 +43,12 @@ final class _MeterPollFailed extends MeterEvent {
 final class _MeterDeviceRemoved extends MeterEvent {
   const _MeterDeviceRemoved();
 }
+
+final class _MeterPropertiesRead extends MeterEvent {
+  const _MeterPropertiesRead(this.properties);
+
+  final MeterProperties? properties;
+
+  @override
+  List<Object?> get props => [properties];
+}

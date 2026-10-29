@@ -8,9 +8,11 @@ import 'package:equatable/equatable.dart';
 import 'dart:typed_data';
 
 import 'fluke_memory_reader.dart';
+import 'meter_properties.dart';
 import 'qdda.dart';
 
 export 'fluke_memory_reader.dart' show MeterMemory;
+export 'meter_properties.dart';
 
 /// Byte transport to the meter (the FTDI cable in production, fakes in
 /// tests).
@@ -31,6 +33,13 @@ abstract interface class MeterLink {
   Future<MeterIdentity> identify();
 
   Future<QddaResponse> queryDisplay();
+
+  /// Company, operator, site and contact stored in the meter.
+  Future<MeterProperties> readProperties();
+
+  /// Stores [value] as the property [name] (one of [MeterProperties.names]);
+  /// an empty [value] clears it.
+  Future<void> writeProperty(String name, String value);
 
   Stream<void> get onRemoved;
 
@@ -103,6 +112,35 @@ class FlukeClient implements MeterLink {
   @override
   Future<QddaResponse> queryDisplay() async =>
       QddaResponse.parse(await command('QDDA'));
+
+  /// Reads each property on its own: a meter that does not know one
+  /// answers it with an error, the others are still read. Stops at the
+  /// first timeout, the meter would not answer the rest either.
+  @override
+  Future<MeterProperties> readProperties() async {
+    final values = <String, String?>{};
+    for (final name in MeterProperties.names) {
+      try {
+        values[name] = splitFields(await command('qmpq $name')).first;
+      } on FlukeAckException {
+        values[name] = null;
+      } on FlukeTimeoutException {
+        break;
+      }
+    }
+    return MeterProperties.fromMap(values);
+  }
+
+  @override
+  Future<void> writeProperty(String name, String value) {
+    if (!MeterProperties.names.contains(name) ||
+        value
+            .split('')
+            .any((c) => !MeterProperties.allowedCharacters.hasMatch(c))) {
+      throw ArgumentError('Invalid property $name: "$value"');
+    }
+    return command("mpq $name,'$value'", expectResponse: false);
+  }
 
   Future<String> command(
     String cmd, {

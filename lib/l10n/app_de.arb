@@ -187,5 +187,13 @@
   "rangeLabel": "Bereich",
   "recordingExported": "Exportiert als {fileName}",
   "aboutTooltip": "Über · Version {version}",
-  "licenseCount": "{count, plural, =1{1 Lizenz} other{{count} Lizenzen}}"
+  "licenseCount": "{count, plural, =1{1 Lizenz} other{{count} Lizenzen}}",
+  "meterProperties": "Geräteinfo",
+  "propertyCompany": "Firma",
+  "propertyOperator": "Bediener",
+  "propertySite": "Standort",
+  "propertyContact": "Kontakt",
+  "meterPropertiesEdit": "Geräteinfo bearbeiten",
+  "meterPropertiesHint": "Wird im Messgerät gespeichert. Buchstaben ohne Umlaute, Ziffern und gängige Zeichen; kein Apostroph.",
+  "meterPropertiesEmpty": "Nichts im Gerät hinterlegt"
 }

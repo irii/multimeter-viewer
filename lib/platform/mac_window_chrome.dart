@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:window_manager/window_manager.dart';
@@ -7,9 +8,20 @@ import 'window_chrome.dart';
 /// macOS: the title bar is transparent and the app bars sit under it next to
 /// the native window buttons (see `MainFlutterWindow.swift`).
 class MacWindowChrome extends WindowChrome {
-  const MacWindowChrome();
+  MacWindowChrome() {
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'fullScreenChanged') {
+        _fullScreen.value = call.arguments as bool;
+      }
+    });
+  }
 
   static const _channel = MethodChannel('multimeter_viewer/window');
+
+  final _fullScreen = ValueNotifier(false);
+
+  @override
+  ValueListenable<bool> get fullScreen => _fullScreen;
 
   @override
   bool get drawsTitleBar => true;

@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import '../../fluke/qdda.dart';
 import '../../l10n/l10n.dart';
 
-/// Range, active modes and MIN MAX start time as chips.
+/// Active modes and MIN MAX start time as chips (the range is part of
+/// the primary display).
 class StatusChips extends StatelessWidget {
   const StatusChips({super.key, required this.display});
 
   final QddaResponse display;
+
+  /// Whether [display] has anything to show as a chip.
+  static bool hasChips(QddaResponse display) =>
+      display.modes.isNotEmpty || display.minMaxStart != null;
 
   @override
   Widget build(BuildContext context) {
@@ -18,16 +23,6 @@ class StatusChips extends StatelessWidget {
       spacing: 8,
       runSpacing: 8,
       children: [
-        Chip(
-          avatar: Icon(
-            display.range.autoRange ? Icons.auto_mode : Icons.tune,
-            size: 18,
-          ),
-          label: Text(
-            '${display.range.autoRange ? l10n.rangeAuto : l10n.rangeManual} · '
-            '${display.range.label}',
-          ),
-        ),
         for (final mode in display.modes)
           Chip(
             backgroundColor: scheme.secondaryContainer,

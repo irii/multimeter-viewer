@@ -9,6 +9,7 @@ class MeterCandidate extends Equatable {
     required this.id,
     required this.cableName,
     this.identity,
+    this.properties,
     this.error,
   });
 
@@ -19,6 +20,9 @@ class MeterCandidate extends Equatable {
   /// Meter that answered the `ID` query, `null` if none did.
   final MeterIdentity? identity;
 
+  /// Owner texts stored in that meter, if they could be read.
+  final MeterProperties? properties;
+
   /// Why the cable could not be queried, e.g. a [FlukeTimeoutException]
   /// when no meter answers.
   final Object? error;
@@ -26,7 +30,7 @@ class MeterCandidate extends Equatable {
   bool get hasMeter => identity != null;
 
   @override
-  List<Object?> get props => [id, cableName, identity, error];
+  List<Object?> get props => [id, cableName, identity, properties, error];
 }
 
 enum MeterDiscoveryError {

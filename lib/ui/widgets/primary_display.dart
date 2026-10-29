@@ -33,20 +33,26 @@ class PrimaryDisplay extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(
-                  l10n.primaryFunction(display.primaryFunction),
-                  style: theme.textTheme.titleMedium,
-                ),
-                if (secondaryFunction != null) ...[
-                  const SizedBox(width: 8),
-                  Text(
-                    '· $secondaryFunction',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                // Shrinks first on narrow screens; the range stays readable.
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      text: l10n.primaryFunction(display.primaryFunction),
+                      children: [
+                        if (secondaryFunction != null)
+                          TextSpan(
+                            text: '  · $secondaryFunction',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                      ],
                     ),
+                    style: theme.textTheme.titleMedium,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ],
-                const Spacer(),
+                ),
+                _RangeLabel(range: display.range),
                 if (display.lightningBolt)
                   Tooltip(
                     message: l10n.dangerousVoltage,
@@ -99,6 +105,42 @@ class PrimaryDisplay extends StatelessWidget {
                 ],
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Range like on the meter's display, e.g. "Auto · 5 V".
+class _RangeLabel extends StatelessWidget {
+  const _RangeLabel({required this.range});
+
+  final RangeData range;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final color = theme.colorScheme.onSurfaceVariant;
+    return Tooltip(
+      message: l10n.rangeLabel,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              range.autoRange ? Icons.auto_mode : Icons.tune,
+              size: 16,
+              color: color,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '${range.autoRange ? l10n.rangeAuto : l10n.rangeManual} · '
+              '${range.label}',
+              style: theme.textTheme.labelLarge?.copyWith(color: color),
+            ),
           ],
         ),
       ),

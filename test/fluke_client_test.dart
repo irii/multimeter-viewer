@@ -38,6 +38,44 @@ void main() {
       });
     }
 
+    test('reads the stored properties, skipping unknown ones', () async {
+      final channel = FakeChannel()
+        ..respond("0\r'ACME Elektro'\r")
+        ..respond("0\r'Max Muster'\r")
+        ..respond('1\r')
+        ..respond("0\r''\r");
+      final properties = await FlukeClient(channel).readProperties();
+      expect(channel.written, [
+        'qmpq company\r',
+        'qmpq operator\r',
+        'qmpq site\r',
+        'qmpq contact\r',
+      ]);
+      expect(
+        properties,
+        const MeterProperties(company: 'ACME Elektro', operator: 'Max Muster'),
+      );
+    });
+
+    test('writes a property with mpq', () async {
+      final channel = FakeChannel()..respond('0\r');
+      await FlukeClient(channel).writeProperty('operator', 'Max Muster');
+      expect(channel.written, ["mpq operator,'Max Muster'\r"]);
+    });
+
+    test('refuses texts the meter cannot take', () {
+      final client = FlukeClient(FakeChannel());
+      expect(
+        () => client.writeProperty('operator', "O'Neil"),
+        throwsArgumentError,
+      );
+      expect(
+        () => client.writeProperty('operator', 'Müller'),
+        throwsArgumentError,
+      );
+      expect(() => client.writeProperty('owner', 'x'), throwsArgumentError);
+    });
+
     test('times out without answer', () async {
       await expectLater(
         FlukeClient(FakeChannel())

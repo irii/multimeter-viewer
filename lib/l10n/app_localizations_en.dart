@@ -659,4 +659,29 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get meterProperties => 'Meter info';
+
+  @override
+  String get propertyCompany => 'Company';
+
+  @override
+  String get propertyOperator => 'Operator';
+
+  @override
+  String get propertySite => 'Site';
+
+  @override
+  String get propertyContact => 'Contact';
+
+  @override
+  String get meterPropertiesEdit => 'Edit meter info';
+
+  @override
+  String get meterPropertiesHint =>
+      'Saved in the meter. Letters without umlauts, digits and common symbols; no apostrophe.';
+
+  @override
+  String get meterPropertiesEmpty => 'Nothing stored in the meter';
 }

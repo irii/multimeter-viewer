@@ -30,6 +30,7 @@ final class MeterState extends Equatable {
   const MeterState({
     this.status = MeterStatus.disconnected,
     this.identity,
+    this.properties,
     this.display,
     this.receivedAt,
     this.history = const SampleHistory(),
@@ -40,6 +41,9 @@ final class MeterState extends Equatable {
 
   final MeterStatus status;
   final MeterIdentity? identity;
+
+  /// Owner texts stored in the meter; `null` if they could not be read.
+  final MeterProperties? properties;
   final QddaResponse? display;
 
   /// System time [display] was received. Not part of equality, so an
@@ -62,6 +66,7 @@ final class MeterState extends Equatable {
   MeterState copyWith({
     MeterStatus? status,
     MeterIdentity? identity,
+    MeterProperties? Function()? properties,
     QddaResponse? display,
     DateTime? receivedAt,
     SampleHistory? history,
@@ -70,6 +75,7 @@ final class MeterState extends Equatable {
   }) => MeterState(
     status: status ?? this.status,
     identity: identity ?? this.identity,
+    properties: properties != null ? properties() : this.properties,
     display: display ?? this.display,
     receivedAt: receivedAt ?? this.receivedAt,
     history: history ?? this.history,
@@ -81,6 +87,7 @@ final class MeterState extends Equatable {
   List<Object?> get props => [
     status,
     identity,
+    properties,
     display,
     history,
     failure,

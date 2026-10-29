@@ -44,6 +44,11 @@ and CMake 3.22.1; libusb is built from `android/app/src/main/cpp/`.
 - On macOS, Apple's FTDI driver may claim the cable; connecting then fails.
 - iOS is not supported.
 
+## TODO
+
+- Bluetooth adapter: a custom battery-powered adapter with a USB port for
+  the IR cable that connects the meter wirelessly to a smartphone or PC.
+
 ## Disclaimer
 
 This is an unofficial application, not made, supported or endorsed by Fluke

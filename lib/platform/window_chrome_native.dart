@@ -4,4 +4,4 @@ import 'mac_window_chrome.dart';
 import 'window_chrome.dart';
 
 WindowChrome createPlatformWindowChrome() =>
-    Platform.isMacOS ? const MacWindowChrome() : const SystemWindowChrome();
+    Platform.isMacOS ? MacWindowChrome() : const SystemWindowChrome();

@@ -52,12 +52,35 @@ class FakeChannel implements SerialChannel {
 
 /// Meter link whose QDDA answers come from [responses] (Object = error).
 class FakeLink implements MeterLink {
-  FakeLink({this.responses = const [], this.meterIdentity = identity});
+  FakeLink({
+    this.responses = const [],
+    this.meterIdentity = identity,
+    this.properties = const MeterProperties(),
+  });
 
   final List<Object> responses;
 
   /// Identity this fake answers `ID` with.
   final MeterIdentity meterIdentity;
+
+  /// Owner texts this fake has stored.
+  MeterProperties properties;
+
+  @override
+  Future<MeterProperties> readProperties() async => properties;
+
+  /// `mpq` commands this fake received, as `name=value`.
+  final written = <String>[];
+
+  @override
+  Future<void> writeProperty(String name, String value) async {
+    written.add('$name=$value');
+    properties = MeterProperties.fromMap({
+      for (final n in MeterProperties.names)
+        n: n == name ? value : properties[n],
+    });
+  }
+
   final removed = StreamController<void>.broadcast();
   int _index = 0;
   int _polls = 0;

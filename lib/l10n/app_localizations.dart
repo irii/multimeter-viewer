@@ -1225,6 +1225,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 license} other{{count} licenses}}'**
   String licenseCount(int count);
+
+  /// No description provided for @meterProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Meter info'**
+  String get meterProperties;
+
+  /// No description provided for @propertyCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Company'**
+  String get propertyCompany;
+
+  /// No description provided for @propertyOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator'**
+  String get propertyOperator;
+
+  /// No description provided for @propertySite.
+  ///
+  /// In en, this message translates to:
+  /// **'Site'**
+  String get propertySite;
+
+  /// No description provided for @propertyContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get propertyContact;
+
+  /// No description provided for @meterPropertiesEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit meter info'**
+  String get meterPropertiesEdit;
+
+  /// No description provided for @meterPropertiesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved in the meter. Letters without umlauts, digits and common symbols; no apostrophe.'**
+  String get meterPropertiesHint;
+
+  /// No description provided for @meterPropertiesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing stored in the meter'**
+  String get meterPropertiesEmpty;
 }
 
 class _AppLocalizationsDelegate

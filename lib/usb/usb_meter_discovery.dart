@@ -73,9 +73,20 @@ class UsbMeterDiscovery implements MeterDiscovery {
     FtdiSerial? serial;
     try {
       serial = await FtdiSerial.open(_backend, device);
-      final identity = await FlukeClient(serial)
-          .identify(timeout: _probeTimeout);
-      return MeterCandidate(id: id, cableName: cableName, identity: identity);
+      final client = FlukeClient(serial);
+      final identity = await client.identify(timeout: _probeTimeout);
+      MeterProperties? properties;
+      try {
+        properties = await client.readProperties();
+      } catch (_) {
+        // Only shown as extra information in the device list.
+      }
+      return MeterCandidate(
+        id: id,
+        cableName: cableName,
+        identity: identity,
+        properties: properties,
+      );
     } catch (e) {
       return MeterCandidate(id: id, cableName: cableName, error: e);
     } finally {
@@ -163,6 +174,13 @@ class _ReleasingLink implements MeterLink {
 
   @override
   Future<QddaResponse> queryDisplay() => _inner.queryDisplay();
+
+  @override
+  Future<MeterProperties> readProperties() => _inner.readProperties();
+
+  @override
+  Future<void> writeProperty(String name, String value) =>
+      _inner.writeProperty(name, value);
 
   @override
   Stream<void> get onRemoved => _inner.onRemoved;

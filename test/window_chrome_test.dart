@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,10 @@ import 'package:multimeter_viewer/ui/widgets/window_app_bar.dart';
 /// Title bar drawn by the app, like on macOS.
 class FakeWindowChrome extends WindowChrome {
   final calls = <String>[];
+  final fullScreenValue = ValueNotifier(false);
+
+  @override
+  ValueListenable<bool> get fullScreen => fullScreenValue;
 
   @override
   bool get drawsTitleBar => true;
@@ -85,6 +90,17 @@ void main() {
 
     await tester.drag(find.text('Title'), const Offset(50, 20));
     expect(chrome.calls, ['doubleClick', 'drag']);
+  });
+
+  testWidgets('no room for the window buttons in full screen', (tester) async {
+    await pumpBar(tester);
+    chrome.fullScreenValue.value = true;
+    await tester.pump();
+    expect(tester.getTopLeft(find.text('Title')).dx, lessThan(72));
+
+    chrome.fullScreenValue.value = false;
+    await tester.pump();
+    expect(tester.getTopLeft(find.text('Title')).dx, greaterThanOrEqualTo(72));
   });
 
   testWidgets('plain app bar where the system draws the title bar', (

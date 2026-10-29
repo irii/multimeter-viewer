@@ -9,7 +9,8 @@ class MainFlutterWindow: NSWindow {
     self.setFrame(windowFrame, display: true)
 
     useUnifiedTitleBar()
-    registerWindowChannel(flutterViewController.engine.binaryMessenger)
+    let channel = registerWindowChannel(flutterViewController.engine.binaryMessenger)
+    observeFullScreen(channel)
 
     RegisterGeneratedPlugins(registry: flutterViewController)
 
@@ -30,7 +31,35 @@ class MainFlutterWindow: NSWindow {
     }
   }
 
-  private func registerWindowChannel(_ messenger: FlutterBinaryMessenger) {
+  /// In full screen the toolbar would show as a grey bar above the app bar
+  /// and the window buttons are hidden: the toolbar goes away, and the app
+  /// bars drop the room they leave for the buttons.
+  private func observeFullScreen(_ channel: FlutterMethodChannel) {
+    let center = NotificationCenter.default
+    center.addObserver(
+      forName: NSWindow.willEnterFullScreenNotification, object: self, queue: .main
+    ) { [weak self] _ in
+      self?.toolbar?.isVisible = false
+      channel.invokeMethod("fullScreenChanged", arguments: true)
+    }
+    center.addObserver(
+      forName: NSWindow.willExitFullScreenNotification, object: self, queue: .main
+    ) { _ in
+      channel.invokeMethod("fullScreenChanged", arguments: false)
+    }
+    // Shown again only after the transition: during it, AppKit keeps the
+    // short title bar and the window buttons end up in the top left corner.
+    center.addObserver(
+      forName: NSWindow.didExitFullScreenNotification, object: self, queue: .main
+    ) { [weak self] _ in
+      self?.toolbar?.isVisible = true
+    }
+  }
+
+  @discardableResult
+  private func registerWindowChannel(_ messenger: FlutterBinaryMessenger)
+    -> FlutterMethodChannel
+  {
     let channel = FlutterMethodChannel(
       name: "multimeter_viewer/window", binaryMessenger: messenger)
     channel.setMethodCallHandler { [weak self] call, result in
@@ -47,6 +76,7 @@ class MainFlutterWindow: NSWindow {
         result(FlutterMethodNotImplemented)
       }
     }
+    return channel
   }
 
   /// What a double click on a title bar does, as set in the system settings

@@ -19,7 +19,6 @@ class ConnectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final scanning = context.select((DiscoveryBloc b) => b.state.scanning);
     return BlocListener<DiscoveryBloc, DiscoveryState>(
       // Each completed scan that changes the meters, and the first one.
       listenWhen: (previous, current) =>
@@ -29,7 +28,16 @@ class ConnectPage extends StatelessWidget {
       child: Scaffold(
         appBar: WindowAppBar(
           appBar: AppBar(
-            title: const Text(AppInfo.name),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset('assets/icon/app_icon.png', width: 28, height: 28),
+                const SizedBox(width: 10),
+                const Flexible(
+                  child: Text(AppInfo.name, overflow: TextOverflow.ellipsis),
+                ),
+              ],
+            ),
             actions: [
               BarActions(
                 actions: [
@@ -37,16 +45,6 @@ class ConnectPage extends StatelessWidget {
                     icon: Icons.folder_open,
                     label: l10n.actionOpenRecording,
                     onPressed: () => openRecordingFile(context),
-                  ),
-                  BarAction(
-                    icon: Icons.refresh,
-                    label: l10n.actionRescan,
-                    pinned: true,
-                    onPressed: scanning
-                        ? null
-                        : () => context.read<DiscoveryBloc>().add(
-                            const DiscoveryScanRequested(),
-                          ),
                   ),
                 ],
               ),
@@ -311,6 +309,10 @@ class _MeterTile extends StatelessWidget {
     final l10n = context.l10n;
     final identity = candidate.identity!;
     final supported = identity.meterModel.isSupported;
+    final properties = candidate.properties;
+    final contact = [
+      for (final name in MeterProperties.names) ?properties?[name],
+    ].join(' · ');
     final scheme = Theme.of(context).colorScheme;
     void connect() =>
         context.read<MeterBloc>().add(MeterConnectRequested(candidate));
@@ -340,6 +342,7 @@ class _MeterTile extends StatelessWidget {
         title: Text(identity.model),
         subtitle: Text(
           'SN ${identity.serial} · FW ${identity.firmware}\n'
+          '${contact.isEmpty ? '' : '$contact\n'}'
           '${l10n.cableName(candidate.cableName)}'
           '${supported ? '' : '\n${l10n.modelUntested}'}',
         ),

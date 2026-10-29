@@ -8,9 +8,11 @@ import '../fluke/qdda.dart';
 import '../l10n/l10n.dart';
 import '../recording/recording_bloc.dart';
 import '../router.dart';
+import 'meter_properties_dialog.dart';
 import 'recording_dialog.dart';
 import 'recording_page.dart';
 import 'widgets/history_chart.dart';
+import 'widgets/meter_properties_card.dart';
 import 'widgets/primary_display.dart';
 import 'widgets/reading_card.dart';
 import 'widgets/recording_banner.dart';
@@ -34,9 +36,14 @@ class MeterPage extends StatelessWidget {
                 children: [
                   Text(identity?.model ?? MeterModel.supportedLabel),
                   if (identity != null)
-                    Text(
-                      'FW ${identity.firmware} · SN ${identity.serial}',
-                      style: Theme.of(context).textTheme.bodySmall,
+                    // Builder: the bar's text color, not the page's.
+                    Builder(
+                      builder: (context) => Text(
+                        'FW ${identity.firmware} · SN ${identity.serial}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: DefaultTextStyle.of(context).style.color,
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -168,6 +175,18 @@ class _MeterBody extends StatelessWidget {
     final display = state.display!;
     final extras = [for (final id in extraReadingIds) ?display.reading(id)];
 
+    final properties = state.properties;
+    final propertiesCard = properties == null
+        ? null
+        : MeterPropertiesCard(
+            properties: properties,
+            onEdit: () => showMeterPropertiesDialog(
+              context,
+              context.read<MeterBloc>(),
+              properties,
+            ),
+          );
+
     final extrasWrap = Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -194,11 +213,12 @@ class _MeterBody extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          StatusChips(display: display),
-                          if (extras.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            extrasWrap,
-                          ],
+                          ...[
+                            if (StatusChips.hasChips(display))
+                              StatusChips(display: display),
+                            if (extras.isNotEmpty) extrasWrap,
+                            ?propertiesCard,
+                          ].separatedBy(const SizedBox(height: 12)),
                         ],
                       ),
                     ),
@@ -217,14 +237,27 @@ class _MeterBody extends StatelessWidget {
           children: [
             const RecordingBanner(),
             PrimaryDisplay(display: display),
-            const SizedBox(height: 12),
-            StatusChips(display: display),
+            if (StatusChips.hasChips(display)) ...[
+              const SizedBox(height: 12),
+              StatusChips(display: display),
+            ],
             if (extras.isNotEmpty) ...[const SizedBox(height: 12), extrasWrap],
             const SizedBox(height: 12),
             HistoryChart(history: state.history, height: 360),
+            if (propertiesCard != null) ...[
+              const SizedBox(height: 12),
+              propertiesCard,
+            ],
           ],
         );
       },
     );
   }
+}
+
+extension on List<Widget> {
+  /// The widgets with [separator] between each two.
+  List<Widget> separatedBy(Widget separator) => [
+    for (final (i, widget) in indexed) ...[if (i > 0) separator, widget],
+  ];
 }

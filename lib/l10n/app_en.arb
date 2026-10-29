@@ -409,5 +409,13 @@
         "type": "int"
       }
     }
-  }
+  },
+  "meterProperties": "Meter info",
+  "propertyCompany": "Company",
+  "propertyOperator": "Operator",
+  "propertySite": "Site",
+  "propertyContact": "Contact",
+  "meterPropertiesEdit": "Edit meter info",
+  "meterPropertiesHint": "Saved in the meter. Letters without umlauts, digits and common symbols; no apostrophe.",
+  "meterPropertiesEmpty": "Nothing stored in the meter"
 }

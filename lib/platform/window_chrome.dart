@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show EdgeInsets, kToolbarHeight;
 import 'package:window_manager/window_manager.dart';
 
@@ -26,6 +27,12 @@ abstract class WindowChrome {
 
   /// Room the app bars leave for the native window buttons.
   EdgeInsets get titleBarPadding;
+
+  /// Whether the window is in full screen, where the window buttons are
+  /// hidden and the app bars need no [titleBarPadding].
+  ValueListenable<bool> get fullScreen => _notFullScreen;
+
+  static final _notFullScreen = ValueNotifier(false);
 
   /// Moves the window with the pointer (drag on the title bar).
   Future<void> startDragging();

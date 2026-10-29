@@ -6,8 +6,8 @@ import '../../platform/window_chrome.dart';
 
 /// [AppBar] that doubles as the window's title bar where the app draws it
 /// ([WindowChrome.drawsTitleBar]): as tall as the title bar, clear of the
-/// window buttons, and it moves the window when dragged. Elsewhere it is
-/// just [appBar].
+/// window buttons, in the app's color to set it apart from the content, and
+/// it moves the window when dragged. Elsewhere it is just [appBar].
 class WindowAppBar extends StatelessWidget implements PreferredSizeWidget {
   const WindowAppBar({super.key, required this.appBar});
 
@@ -26,10 +26,34 @@ class WindowAppBar extends StatelessWidget implements PreferredSizeWidget {
     final chrome = WindowChrome.instance;
     if (!chrome.drawsTitleBar) return appBar;
     final media = MediaQuery.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final (background, foreground) = scheme.brightness == Brightness.light
+        ? (scheme.primary, scheme.onPrimary)
+        : (scheme.primaryContainer, scheme.onPrimaryContainer);
     // The app bar keeps its content inside the padding (SafeArea).
-    return MediaQuery(
-      data: media.copyWith(padding: media.padding + chrome.titleBarPadding),
-      child: _TitleBarGestures(chrome: chrome, child: appBar),
+    return ValueListenableBuilder(
+      valueListenable: chrome.fullScreen,
+      builder: (context, fullScreen, child) => MediaQuery(
+        data: media.copyWith(
+          padding: fullScreen
+              ? media.padding
+              : media.padding + chrome.titleBarPadding,
+        ),
+        child: child!,
+      ),
+      child: Theme(
+        data: theme.copyWith(
+          appBarTheme: theme.appBarTheme.copyWith(
+            backgroundColor: background,
+            foregroundColor: foreground,
+            // Keeps the color when content scrolls under the bar.
+            scrolledUnderElevation: 0,
+            surfaceTintColor: Colors.transparent,
+          ),
+        ),
+        child: _TitleBarGestures(chrome: chrome, child: appBar),
+      ),
     );
   }
 }

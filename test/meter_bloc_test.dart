@@ -34,9 +34,51 @@ void main() {
       const MeterState(
         status: MeterStatus.connected,
         identity: FakeLink.identity,
+        properties: MeterProperties(),
       ),
       isA<MeterState>().having((s) => s.display, 'display', isNotNull),
     ]),
+  );
+
+  blocTest<MeterBloc, MeterState>(
+    'connect reads the properties stored in the meter',
+    build: () {
+      link = FakeLink(
+        properties: const MeterProperties(operator: 'Max Muster'),
+      );
+      return MeterBloc(connector: (_) async => link);
+    },
+    act: (bloc) => bloc.add(const MeterConnectRequested(fakeCandidate)),
+    wait: const Duration(milliseconds: 20),
+    verify: (bloc) => expect(
+      bloc.state.properties,
+      const MeterProperties(operator: 'Max Muster'),
+    ),
+  );
+
+  blocTest<MeterBloc, MeterState>(
+    'saving writes only the changed properties and reads them back',
+    build: () {
+      link = FakeLink(
+        properties: const MeterProperties(company: 'ACME', site: 'Hall 3'),
+      );
+      return MeterBloc(connector: (_) async => link);
+    },
+    act: (bloc) async {
+      bloc.add(const MeterConnectRequested(fakeCandidate));
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await bloc.saveProperties(
+        const MeterProperties(company: 'ACME', operator: 'Max'),
+      );
+    },
+    wait: const Duration(milliseconds: 20),
+    verify: (bloc) {
+      expect(link.written, ['operator=Max', 'site=']);
+      expect(
+        bloc.state.properties,
+        const MeterProperties(company: 'ACME', operator: 'Max'),
+      );
+    },
   );
 
   blocTest<MeterBloc, MeterState>(

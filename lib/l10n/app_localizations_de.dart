@@ -660,4 +660,29 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get meterProperties => 'Geräteinfo';
+
+  @override
+  String get propertyCompany => 'Firma';
+
+  @override
+  String get propertyOperator => 'Bediener';
+
+  @override
+  String get propertySite => 'Standort';
+
+  @override
+  String get propertyContact => 'Kontakt';
+
+  @override
+  String get meterPropertiesEdit => 'Geräteinfo bearbeiten';
+
+  @override
+  String get meterPropertiesHint =>
+      'Wird im Messgerät gespeichert. Buchstaben ohne Umlaute, Ziffern und gängige Zeichen; kein Apostroph.';
+
+  @override
+  String get meterPropertiesEmpty => 'Nichts im Gerät hinterlegt';
 }

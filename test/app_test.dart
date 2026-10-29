@@ -220,8 +220,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.byTooltip('Neu suchen'), findsOneWidget);
     expect(find.byTooltip('Einstellungen'), findsNothing);
+    expect(find.byIcon(Icons.more_vert), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Verbinden'));
     await tester.pump();

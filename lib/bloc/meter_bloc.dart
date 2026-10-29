@@ -30,6 +30,9 @@ class MeterBloc extends Bloc<MeterEvent, MeterState> {
     on<_MeterPolled>(_onPolled);
     on<_MeterPollFailed>(_onPollFailed);
     on<_MeterDeviceRemoved>(_onDeviceRemoved);
+    on<_MeterPropertiesRead>(
+      (event, emit) => emit(state.copyWith(properties: () => event.properties)),
+    );
   }
 
   final MeterConnector connector;
@@ -55,12 +58,19 @@ class MeterBloc extends Bloc<MeterEvent, MeterState> {
     try {
       link = await connector(event.candidate);
       final identity = await link.identify();
+      final properties = await _readProperties(link);
       _link = link;
       _consecutiveFailures = 0;
       _removedSub = link.onRemoved.listen(
         (_) => add(const _MeterDeviceRemoved()),
       );
-      emit(MeterState(status: MeterStatus.connected, identity: identity));
+      emit(
+        MeterState(
+          status: MeterStatus.connected,
+          identity: identity,
+          properties: properties,
+        ),
+      );
       unawaited(_pollLoop(link));
     } catch (e) {
       await _closeQuietly(link);
@@ -70,6 +80,38 @@ class MeterBloc extends Bloc<MeterEvent, MeterState> {
           failure: MeterFailure(MeterFailureKind.connect, e),
         ),
       );
+    }
+  }
+
+  /// The properties are extra information: failing to read them does not
+  /// fail the connection.
+  static Future<MeterProperties?> _readProperties(MeterLink link) async {
+    try {
+      return await link.readProperties();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Writes the properties that differ from the current ones into the
+  /// meter and reads them back. Throws if the meter rejects one; the
+  /// properties written before stay changed.
+  Future<void> saveProperties(MeterProperties properties) async {
+    final link = _link;
+    if (link == null) throw StateError('Not connected');
+    final current = state.properties ?? const MeterProperties();
+    try {
+      for (final name in MeterProperties.names) {
+        final value = properties[name] ?? '';
+        if (value != (current[name] ?? '')) {
+          await link.writeProperty(name, value);
+        }
+      }
+    } finally {
+      final stored = await _readProperties(link);
+      if (identical(_link, link) && !isClosed) {
+        add(_MeterPropertiesRead(stored));
+      }
     }
   }
 
