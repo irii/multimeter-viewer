@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'about/app_info.dart';
+import 'ble/ble_meter_discovery.dart';
 import 'bloc/meter_bloc.dart';
 import 'bloc/time_base_cubit.dart';
 import 'compact/compact_mode_cubit.dart';
@@ -53,8 +54,18 @@ class MultimeterViewerApp extends StatefulWidget {
 }
 
 class _MultimeterViewerAppState extends State<MultimeterViewerApp> {
+  /// Also used by the serial monitor; `null` when [widget.discovery]
+  /// replaces the real discovery.
+  late final UsbMeterDiscovery? _usbDiscovery = widget.discovery == null
+      ? UsbMeterDiscovery()
+      : null;
   late final MeterDiscovery _discovery =
-      widget.discovery ?? UsbMeterDiscovery();
+      widget.discovery ??
+      CompositeMeterDiscovery({
+        MeterTransport.usb: _usbDiscovery!,
+        if (BleMeterDiscovery.supported)
+          MeterTransport.bluetooth: BleMeterDiscovery(),
+      });
   late final MeterBloc _meterBloc = MeterBloc(connector: _discovery.connect);
   late final RecordingBloc _recordingBloc = RecordingBloc(
     meterStates: _meterBloc.stream,
@@ -131,8 +142,11 @@ class _MultimeterViewerAppState extends State<MultimeterViewerApp> {
   @override
   Widget build(BuildContext context) {
     const seed = Color(0xFFF57C00); // orange of the app icon
-    return RepositoryProvider.value(
-      value: _discovery,
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider.value(value: _discovery),
+        RepositoryProvider<UsbMeterDiscovery?>.value(value: _usbDiscovery),
+      ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider.value(value: _meterBloc),

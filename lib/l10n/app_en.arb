@@ -14,7 +14,7 @@
   "actionOpenRecording": "Open recording",
   "actionRescan": "Search again",
   "availableMeters": "Available meters",
-  "connectInstructions": "Plug in the IR USB cable, attach it to the meter and switch the meter on. Meters are searched automatically.",
+  "connectInstructions": "Plug in the IR USB cable or switch on the Bluetooth adapter, attach it to the meter and switch the meter on. Searching starts automatically.",
   "scanFailed": "Search failed",
   "noMeterFound": "No {models} found",
   "@noMeterFound": {
@@ -24,9 +24,9 @@
       }
     }
   },
-  "noMeterFoundHint": "Is the meter switched on and the IR adapter attached correctly? Then “Search again”.",
+  "noMeterFoundHint": "Is the meter switched on and the IR adapter seated correctly? Searching continues automatically.",
   "searchingMeters": "Searching for meters …",
-  "cablesWithoutMeter": "Cables without meter",
+  "cablesWithoutMeter": "Adapters without meter",
   "grantUsbCable": "Allow USB cable …",
   "cableName": "Cable: {name}",
   "@cableName": {
@@ -417,5 +417,25 @@
   "propertyContact": "Contact",
   "meterPropertiesEdit": "Edit meter info",
   "meterPropertiesHint": "Saved in the meter. Letters without umlauts, digits and common symbols; no apostrophe.",
-  "meterPropertiesEmpty": "Nothing stored in the meter"
+  "meterPropertiesEmpty": "Nothing stored in the meter",
+  "bluetoothAdapterName": "Bluetooth: {name}",
+  "@bluetoothAdapterName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serialMonitor": "Serial monitor",
+  "serialMonitorHint": "Shows the raw data of a cable or adapter. Searching for meters is paused while this page is open; commands are sent with a trailing CR.",
+  "serialMonitorPort": "Cable / adapter",
+  "serialMonitorNoPorts": "No cable or adapter found",
+  "serialMonitorOpen": "Open",
+  "serialMonitorClose": "Close",
+  "serialMonitorCommand": "Command",
+  "serialMonitorSend": "Send",
+  "serialMonitorClear": "Clear",
+  "serialMonitorCopy": "Copy log",
+  "serialMonitorCopied": "Log copied",
+  "serialMonitorEmpty": "No data yet"
 }

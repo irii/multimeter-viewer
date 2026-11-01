@@ -1,6 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- The IR cable is a USB device; the phone/tablet must be a USB host. -->
-    <uses-feature android:name="android.hardware.usb.host" android:required="true" />
+    <!-- The meter is reached over the IR USB cable (USB host) or the
+         Bluetooth IR adapter; either one is enough. -->
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+
+    <!-- Bluetooth adapter: scanning is not used to find the location. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Android 11 and older. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
 
     <application
         android:label="Multimeter Viewer"

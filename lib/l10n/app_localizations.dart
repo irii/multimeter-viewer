@@ -185,7 +185,7 @@ abstract class AppLocalizations {
   /// No description provided for @connectInstructions.
   ///
   /// In en, this message translates to:
-  /// **'Plug in the IR USB cable, attach it to the meter and switch the meter on. Meters are searched automatically.'**
+  /// **'Plug in the IR USB cable or switch on the Bluetooth adapter, attach it to the meter and switch the meter on. Searching starts automatically.'**
   String get connectInstructions;
 
   /// No description provided for @scanFailed.
@@ -203,7 +203,7 @@ abstract class AppLocalizations {
   /// No description provided for @noMeterFoundHint.
   ///
   /// In en, this message translates to:
-  /// **'Is the meter switched on and the IR adapter attached correctly? Then “Search again”.'**
+  /// **'Is the meter switched on and the IR adapter seated correctly? Searching continues automatically.'**
   String get noMeterFoundHint;
 
   /// No description provided for @searchingMeters.
@@ -215,7 +215,7 @@ abstract class AppLocalizations {
   /// No description provided for @cablesWithoutMeter.
   ///
   /// In en, this message translates to:
-  /// **'Cables without meter'**
+  /// **'Adapters without meter'**
   String get cablesWithoutMeter;
 
   /// No description provided for @grantUsbCable.
@@ -1273,6 +1273,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing stored in the meter'**
   String get meterPropertiesEmpty;
+
+  /// No description provided for @bluetoothAdapterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth: {name}'**
+  String bluetoothAdapterName(String name);
+
+  /// No description provided for @serialMonitor.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial monitor'**
+  String get serialMonitor;
+
+  /// No description provided for @serialMonitorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the raw data of a cable or adapter. Searching for meters is paused while this page is open; commands are sent with a trailing CR.'**
+  String get serialMonitorHint;
+
+  /// No description provided for @serialMonitorPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cable / adapter'**
+  String get serialMonitorPort;
+
+  /// No description provided for @serialMonitorNoPorts.
+  ///
+  /// In en, this message translates to:
+  /// **'No cable or adapter found'**
+  String get serialMonitorNoPorts;
+
+  /// No description provided for @serialMonitorOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get serialMonitorOpen;
+
+  /// No description provided for @serialMonitorClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get serialMonitorClose;
+
+  /// No description provided for @serialMonitorCommand.
+  ///
+  /// In en, this message translates to:
+  /// **'Command'**
+  String get serialMonitorCommand;
+
+  /// No description provided for @serialMonitorSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get serialMonitorSend;
+
+  /// No description provided for @serialMonitorClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get serialMonitorClear;
+
+  /// No description provided for @serialMonitorCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy log'**
+  String get serialMonitorCopy;
+
+  /// No description provided for @serialMonitorCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Log copied'**
+  String get serialMonitorCopied;
+
+  /// No description provided for @serialMonitorEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No data yet'**
+  String get serialMonitorEmpty;
 }
 
 class _AppLocalizationsDelegate

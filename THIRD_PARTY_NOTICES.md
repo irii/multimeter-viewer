@@ -44,10 +44,22 @@ libusb is loaded dynamically and can be replaced by any compatible build
 
 The app's license page shows the entries for the platform it runs on.
 
+## Bluetooth adapter firmware
+
+`firmware/ir-ble-adapter` is MIT like the app. Built firmware images
+contain:
+
+- **NimBLE-Arduino** – © h2zero and Apache NimBLE contributors – Apache
+  License 2.0 – https://github.com/h2zero/NimBLE-Arduino
+- **Arduino core for ESP32** and **ESP-IDF** – © Espressif Systems – LGPL 2.1
+  (Arduino core) and Apache License 2.0 (ESP-IDF) –
+  https://github.com/espressif/arduino-esp32
+
 ## Dart and Flutter packages
 
 All runtime dependencies use permissive licenses (BSD-3-Clause, MIT,
 Apache-2.0); their notices are collected automatically by Flutter and shown
 on the license page. Notable ones: Flutter (BSD), flutter_bloc/bloc (MIT),
 go_router (BSD), fl_chart (MIT), window_manager (MIT), unified_usb (MIT),
+universal_ble (BSD-3-Clause),
 file_selector, shared_preferences, url_launcher, intl (BSD).

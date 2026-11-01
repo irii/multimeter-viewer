@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../about/app_info.dart';
 import '../bloc/discovery_bloc.dart';
@@ -8,6 +9,8 @@ import '../fluke/fluke_client.dart';
 import '../fluke/meter_discovery.dart';
 import '../fluke/qdda.dart';
 import '../l10n/l10n.dart';
+import '../router.dart';
+import '../usb/usb_meter_discovery.dart';
 import 'recording_page.dart';
 import 'widgets/recording_banner.dart';
 import 'widgets/window_app_bar.dart';
@@ -46,6 +49,12 @@ class ConnectPage extends StatelessWidget {
                     label: l10n.actionOpenRecording,
                     onPressed: () => openRecordingFile(context),
                   ),
+                  if (context.read<UsbMeterDiscovery?>() != null)
+                    BarAction(
+                      icon: Icons.terminal,
+                      label: l10n.serialMonitor,
+                      onPressed: () => context.go(Routes.serialMonitor),
+                    ),
                 ],
               ),
             ],
@@ -151,7 +160,11 @@ class _MeterList extends StatelessWidget {
               children: [
                 for (final cable in state.cablesWithoutMeter)
                   ListTile(
-                    leading: const Icon(Icons.cable),
+                    leading: Icon(
+                      cable.transport == MeterTransport.bluetooth
+                          ? Icons.bluetooth
+                          : Icons.cable,
+                    ),
                     title: Text(cable.cableName),
                     subtitle: Text(_cableProblem(l10n, cable.error)),
                   ),
@@ -343,7 +356,7 @@ class _MeterTile extends StatelessWidget {
         subtitle: Text(
           'SN ${identity.serial} · FW ${identity.firmware}\n'
           '${contact.isEmpty ? '' : '$contact\n'}'
-          '${l10n.cableName(candidate.cableName)}'
+          '${_adapterName(l10n, candidate)}'
           '${supported ? '' : '\n${l10n.modelUntested}'}',
         ),
         isThreeLine: true,
@@ -440,3 +453,12 @@ String _cableProblem(AppLocalizations l10n, Object? error) {
   final hint = l10n.connectionHint(error);
   return hint == null ? l10n.error(error) : '${l10n.error(error)}\n$hint';
 }
+
+/// "Cable: …" or "Bluetooth: …".
+String _adapterName(AppLocalizations l10n, MeterCandidate candidate) =>
+    switch (candidate.transport) {
+      MeterTransport.usb => l10n.cableName(candidate.cableName),
+      MeterTransport.bluetooth => l10n.bluetoothAdapterName(
+        candidate.cableName,
+      ),
+    };

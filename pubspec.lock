@@ -26,7 +26,7 @@ packages:
     source: hosted
     version: "2.7.0"
   async:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: async
       sha256: e2eb0491ba5ddb6177742d2da23904574082139b07c1e33b8503b9f46f3e1a37
@@ -57,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.0.0"
+  bluez:
+    dependency: transitive
+    description:
+      name: bluez
+      sha256: "4747e4f25abf91a9a341a1c3f83a9081be9bdd189d913e391b6707db4214b4d2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -153,6 +161,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.4"
+  dbus:
+    dependency: transitive
+    description:
+      name: dbus
+      sha256: f7db8504e715b835f5ebe5fe74604ccd961d504c73389a5d8e81bafc2e2f3612
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.0"
   diff_match_patch:
     dependency: transitive
     description:
@@ -296,6 +312,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_web_bluetooth:
+    dependency: transitive
+    description:
+      name: flutter_web_bluetooth
+      sha256: "71fa37f699032b4416d56aeb5214363ba057f6aed4eba544cc26293e2582b85d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -533,6 +557,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
+  petitparser:
+    dependency: transitive
+    description:
+      name: petitparser
+      sha256: "91bd59303e9f769f108f8df05e371341b15d59e995e6806aefab827b58336675"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.2"
   platform:
     dependency: transitive
     description:
@@ -811,6 +843,14 @@ packages:
       url: "https://github.com/irii/unified_usb.dart.git"
     source: git
     version: "0.1.0"
+  universal_ble:
+    dependency: "direct main"
+    description:
+      name: universal_ble
+      sha256: "31780289d5fd2646a0249a667d36cde8bd126d18eb8e3ce3c4622ac70bb621cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.0"
   url_launcher:
     dependency: "direct main"
     description:
@@ -947,6 +987,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      sha256: "67f0aff7be013d107995e9b75bf4e7f2c3ef2dfdb2c8e68024bba0a7fd5756a4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.1"
   yaml:
     dependency: transitive
     description:

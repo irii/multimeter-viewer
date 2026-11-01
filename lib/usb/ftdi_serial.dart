@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:unified_usb/unified_usb.dart';
 
 import '../fluke/fluke_client.dart';
+import 'usb_util.dart';
 
 const int ftdiVendorId = 0x0403;
 
@@ -45,7 +46,7 @@ class FtdiSerial implements SerialChannel {
     this._kernelDriverDetached,
   ) {
     _removedSub = _backend.onDeviceDisconnected.listen((d) {
-      if (d == _device || _sameDevice(d.descriptor, _device.descriptor)) {
+      if (d == _device || sameUsbDevice(d.descriptor, _device.descriptor)) {
         _removed.add(null);
       }
     });
@@ -95,7 +96,7 @@ class FtdiSerial implements SerialChannel {
       final epIn = findBulk(UsbDirection.inDirection);
       final epOut = findBulk(UsbDirection.outDirection);
 
-      final detached = await _detachKernelDriver(
+      final detached = await detachKernelDriver(
         backend,
         device,
         interfaceNumber,
@@ -204,30 +205,6 @@ class FtdiSerial implements SerialChannel {
       // Device may already be gone.
     }
   }
-
-  /// Detaches an OS driver bound to the cable (Linux/Android `ftdi_sio`),
-  /// which would otherwise make claiming the interface fail. Returns whether
-  /// a driver was detached.
-  static Future<bool> _detachKernelDriver(
-    UsbBackend backend,
-    UsbDevice device,
-    int interfaceNumber,
-  ) async {
-    if (!backend.kernelDriverDetachSupported) return false;
-    try {
-      if (!await device.isKernelDriverActive(interfaceNumber)) return false;
-      await device.detachKernelDriver(interfaceNumber);
-      return true;
-    } on UsbException {
-      // Not permitted or not supported here; claiming will report the error.
-      return false;
-    }
-  }
-
-  static bool _sameDevice(UsbDeviceDescriptor a, UsbDeviceDescriptor b) =>
-      a.vendorId == b.vendorId &&
-      a.productId == b.productId &&
-      a.serialNumber == b.serialNumber;
 }
 
 /// Removes the 2 modem-status bytes the FTDI chip puts at the start of each

@@ -4,13 +4,32 @@ import 'package:unified_usb/unified_usb.dart';
 
 import '../fluke/fluke_client.dart';
 import '../fluke/meter_discovery.dart';
-import '../fluke/qdda.dart';
+import '../fluke/releasing_link.dart';
 import 'backend.dart';
+import 'cdc_serial.dart';
 import 'ftdi_serial.dart';
 
-const _filters = [UsbDeviceFilter(vendorId: ftdiVendorId)];
+/// The IR USB cable (FTDI) and the Bluetooth IR adapter plugged in over
+/// USB (Espressif, CDC).
+const _filters = [
+  UsbDeviceFilter(vendorId: ftdiVendorId),
+  UsbDeviceFilter(vendorId: espressifVendorId),
+];
 
-/// [MeterDiscovery] over FTDI cables via `unified_usb`.
+/// Shown for the IR adapter in USB mode.
+const irAdapterUsbName = 'MMV-IR (USB)';
+
+bool _isMeterCable(UsbDevice d) =>
+    _filters.any((f) => f.vendorId == d.descriptor.vendorId);
+
+/// Opens the serial driver that fits [device].
+Future<SerialChannel> _openSerial(UsbBackend backend, UsbDevice device) =>
+    device.descriptor.vendorId == espressifVendorId
+    ? CdcSerial.open(backend, device)
+    : FtdiSerial.open(backend, device);
+
+/// [MeterDiscovery] over USB via `unified_usb`: FTDI cables and the IR
+/// adapter in USB mode.
 ///
 /// Scans and connects run one at a time, and a cable with an open meter
 /// connection is never probed, so periodic scans cannot interfere with a
@@ -70,9 +89,9 @@ class UsbMeterDiscovery implements MeterDiscovery {
 
   Future<MeterCandidate> _probe(String id, UsbDevice device) async {
     final cableName = _cableName(device.descriptor);
-    FtdiSerial? serial;
+    SerialChannel? serial;
     try {
-      serial = await FtdiSerial.open(_backend, device);
+      serial = await _openSerial(_backend, device);
       final client = FlukeClient(serial);
       final identity = await client.identify(timeout: _probeTimeout);
       MeterProperties? properties;
@@ -100,6 +119,38 @@ class UsbMeterDiscovery implements MeterDiscovery {
     if (backend != null) disposeUsbBackend(backend);
   }
 
+  /// The cables and adapters plugged in, without probing them, for the
+  /// serial monitor.
+  Future<List<SerialPortInfo>> listSerialPorts() => _exclusive(() async {
+    await requestMissingUsbPermissions(_backend, _filters);
+    final devices = await _backend.getDevices(filters: _filters);
+    final found = <String, UsbDevice>{};
+    for (final device in devices) {
+      final id = _uniqueId(device.descriptor, found);
+      found[id] = _inUse.contains(id) ? _devices[id] ?? device : device;
+    }
+    _devices = found;
+    return [
+      for (final MapEntry(key: id, value: device) in found.entries)
+        SerialPortInfo(id, _cableName(device.descriptor)),
+    ];
+  });
+
+  /// Opens the cable or adapter [id] (from [listSerialPorts]) as a raw
+  /// serial channel. It counts as in use until the channel is closed.
+  Future<SerialChannel> openSerialPort(String id) => _exclusive(() async {
+    final device = _devices[id];
+    if (device == null) {
+      throw const MeterDiscoveryException(MeterDiscoveryError.deviceGone);
+    }
+    if (_inUse.contains(id)) {
+      throw const MeterDiscoveryException(MeterDiscoveryError.deviceInUse);
+    }
+    final serial = await _openSerial(_backend, device);
+    _inUse.add(id);
+    return _ReleasingChannel(serial, () => _inUse.remove(id));
+  });
+
   @override
   Future<void> requestDevice() async {
     if (!_backend.requestDeviceRequired) return;
@@ -116,9 +167,9 @@ class UsbMeterDiscovery implements MeterDiscovery {
     if (_inUse.contains(id)) {
       throw const MeterDiscoveryException(MeterDiscoveryError.deviceInUse);
     }
-    final client = FlukeClient(await FtdiSerial.open(_backend, device));
+    final client = FlukeClient(await _openSerial(_backend, device));
     _inUse.add(id);
-    return _ReleasingLink(client, () => _inUse.remove(id));
+    return ReleasingLink(client, () => _inUse.remove(id));
   });
 
   @override
@@ -129,15 +180,20 @@ class UsbMeterDiscovery implements MeterDiscovery {
     } catch (_) {
       return const Stream.empty();
     }
-    bool isFtdi(UsbDevice d) => d.descriptor.vendorId == ftdiVendorId;
     final controller = StreamController<void>();
     final subs = <StreamSubscription<UsbDevice>>[];
     controller
       ..onListen = () {
         subs
-          ..add(backend.onDeviceConnected.where(isFtdi).listen(controller.add))
           ..add(
-            backend.onDeviceDisconnected.where(isFtdi).listen(controller.add),
+            backend.onDeviceConnected
+                .where(_isMeterCable)
+                .listen(controller.add),
+          )
+          ..add(
+            backend.onDeviceDisconnected
+                .where(_isMeterCable)
+                .listen(controller.add),
           );
       }
       ..onCancel = () async {
@@ -160,39 +216,39 @@ class UsbMeterDiscovery implements MeterDiscovery {
   }
 
   static String _cableName(UsbDeviceDescriptor d) {
-    final name =
-        d.productName ??
-        '${d.vendorId.toRadixString(16).padLeft(4, '0')}:'
-            '${d.productId.toRadixString(16).padLeft(4, '0')}';
+    // The ESP32's USB controller reports a generic product name.
+    final name = d.vendorId == espressifVendorId
+        ? irAdapterUsbName
+        : d.productName ??
+              '${d.vendorId.toRadixString(16).padLeft(4, '0')}:'
+                  '${d.productId.toRadixString(16).padLeft(4, '0')}';
     return d.serialNumber == null ? name : '$name (${d.serialNumber})';
   }
 }
 
-/// Marks the cable as free again when the connection is closed.
-class _ReleasingLink implements MeterLink {
-  _ReleasingLink(this._inner, this._release);
+/// A cable or adapter for the serial monitor.
+class SerialPortInfo {
+  const SerialPortInfo(this.id, this.name);
 
-  final MeterLink _inner;
+  final String id;
+  final String name;
+}
+
+/// Marks the cable or adapter as free again when the channel is closed.
+class _ReleasingChannel implements SerialChannel {
+  _ReleasingChannel(this._inner, this._release);
+
+  final SerialChannel _inner;
   final void Function() _release;
 
   @override
-  Future<MeterIdentity> identify() => _inner.identify();
+  Future<void> write(List<int> data) => _inner.write(data);
 
   @override
-  Future<QddaResponse> queryDisplay() => _inner.queryDisplay();
-
-  @override
-  Future<MeterProperties> readProperties() => _inner.readProperties();
-
-  @override
-  Future<void> writeProperty(String name, String value) =>
-      _inner.writeProperty(name, value);
+  Future<List<int>> read() => _inner.read();
 
   @override
   Stream<void> get onRemoved => _inner.onRemoved;
-
-  @override
-  MeterMemory get memory => _inner.memory;
 
   @override
   Future<void> close() async {

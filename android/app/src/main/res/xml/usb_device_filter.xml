@@ -2,4 +2,6 @@
 <resources>
     <!-- FTDI (0x0403), the USB-serial chip of the Fluke IR cable. -->
     <usb-device vendor-id="1027" />
+    <!-- Espressif (0x303A), the Bluetooth IR adapter plugged in over USB. -->
+    <usb-device vendor-id="12346" />
 </resources>

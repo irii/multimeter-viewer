@@ -53,7 +53,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get connectInstructions =>
-      'IR-USB-Kabel anstecken, auf das Messgerät setzen und das Messgerät einschalten. Es wird automatisch gesucht.';
+      'IR-USB-Kabel anstecken oder Bluetooth-Adapter einschalten, auf das Messgerät setzen und das Messgerät einschalten. Es wird automatisch gesucht.';
 
   @override
   String get scanFailed => 'Suche fehlgeschlagen';
@@ -65,13 +65,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get noMeterFoundHint =>
-      'Ist das Messgerät eingeschaltet und sitzt der IR-Adapter richtig? Danach „Neu suchen“.';
+      'Ist das Messgerät eingeschaltet und sitzt der IR-Adapter richtig? Es wird automatisch weiter gesucht.';
 
   @override
   String get searchingMeters => 'Suche Messgeräte …';
 
   @override
-  String get cablesWithoutMeter => 'Kabel ohne Messgerät';
+  String get cablesWithoutMeter => 'Adapter ohne Messgerät';
 
   @override
   String get grantUsbCable => 'USB-Kabel freigeben …';
@@ -685,4 +685,46 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get meterPropertiesEmpty => 'Nichts im Gerät hinterlegt';
+
+  @override
+  String bluetoothAdapterName(String name) {
+    return 'Bluetooth: $name';
+  }
+
+  @override
+  String get serialMonitor => 'Serial-Monitor';
+
+  @override
+  String get serialMonitorHint =>
+      'Zeigt die Rohdaten eines Kabels oder Adapters. Die Suche nach Messgeräten ist pausiert, solange diese Seite offen ist; Befehle werden mit CR am Ende gesendet.';
+
+  @override
+  String get serialMonitorPort => 'Kabel / Adapter';
+
+  @override
+  String get serialMonitorNoPorts => 'Kein Kabel oder Adapter gefunden';
+
+  @override
+  String get serialMonitorOpen => 'Öffnen';
+
+  @override
+  String get serialMonitorClose => 'Schließen';
+
+  @override
+  String get serialMonitorCommand => 'Befehl';
+
+  @override
+  String get serialMonitorSend => 'Senden';
+
+  @override
+  String get serialMonitorClear => 'Leeren';
+
+  @override
+  String get serialMonitorCopy => 'Log kopieren';
+
+  @override
+  String get serialMonitorCopied => 'Log kopiert';
+
+  @override
+  String get serialMonitorEmpty => 'Noch keine Daten';
 }

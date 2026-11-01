@@ -3,9 +3,9 @@
 Live readings and recordings for multimeters – compatible with the Fluke 287
 and 289.
 
-The app connects to the meter through its IR USB cable and shows the
-readings live. It runs on macOS, Windows, Linux, Android and in the browser
-(Chrome/Edge).
+The app connects to the meter through its IR USB cable or a self-built
+Bluetooth IR adapter and shows the readings live. It runs on macOS,
+Windows, Linux, Android and in the browser (Chrome/Edge; USB only).
 
 <p>
   <img src="assets/pic-2.png" alt="Live view with trend chart" width="68%">
@@ -44,10 +44,13 @@ and CMake 3.22.1; libusb is built from `android/app/src/main/cpp/`.
 - On macOS, Apple's FTDI driver may claim the cable; connecting then fails.
 - iOS is not supported.
 
-## TODO
+## Bluetooth IR adapter
 
-- Bluetooth adapter: a custom battery-powered adapter with a USB port for
-  the IR cable that connects the meter wirelessly to a smartphone or PC.
+A battery-powered ESP32 with an IR LED and an IR photodiode that
+connects the meter wirelessly to a smartphone or PC, or over USB while it is
+plugged in; the app finds it automatically. Circuit and firmware:
+[firmware/ir-ble-adapter](firmware/ir-ble-adapter). Work in progress:
+sending to the meter works, receiving is not yet reliable.
 
 ## Disclaimer
 

@@ -15,6 +15,7 @@ import 'ui/connect_page.dart';
 import 'ui/memory_page.dart';
 import 'ui/meter_page.dart';
 import 'ui/recording_page.dart';
+import 'ui/serial_monitor_page.dart';
 
 abstract final class Routes {
   static const connect = '/';
@@ -28,6 +29,10 @@ abstract final class Routes {
 
   /// Recordings and measurements stored in the meter.
   static const memory = '/memory';
+
+  /// Raw data of a cable or adapter; replaces the connect page, so meter
+  /// discovery is paused while it is shown.
+  static const serialMonitor = '/serial-monitor';
 
   static const about = '/about';
   static const licenses = '/licenses';
@@ -76,6 +81,10 @@ GoRouter createRouter(MeterBloc bloc) => GoRouter(
         },
         child: const MemoryPage(),
       ),
+    ),
+    GoRoute(
+      path: Routes.serialMonitor,
+      builder: (context, state) => const SerialMonitorPage(),
     ),
     GoRoute(path: Routes.about, builder: (context, state) => const AboutPage()),
     GoRoute(
