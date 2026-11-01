@@ -5,7 +5,7 @@ import 'package:universal_ble/universal_ble.dart';
 
 import '../fluke/fluke_client.dart';
 
-/// The Bluetooth IR adapter (`firmware/ir-ble-adapter`): an ESP32 that sends
+/// The Bluetooth IR adapter (`firmware/28x-ir-dongle`): an ESP32 that sends
 /// the bytes it receives over Bluetooth LE to the meter's IR port and
 /// notifies the bytes the meter answers. The meter protocol is the same as
 /// over the USB cable.

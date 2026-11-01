@@ -1,6 +1,6 @@
 /// Minimal USB CDC-ACM serial driver on top of `unified_usb`, for the
 /// Bluetooth IR adapter while it is plugged in over USB
-/// (`firmware/ir-ble-adapter`): it passes the bytes through to the meter's
+/// (`firmware/28x-ir-dongle`): it passes the bytes through to the meter's
 /// IR port at the meter's 115200 baud, so no line settings are sent.
 library;
 

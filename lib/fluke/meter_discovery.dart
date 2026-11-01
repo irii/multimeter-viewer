@@ -9,7 +9,7 @@ enum MeterTransport {
   /// IR-USB cable.
   usb,
 
-  /// Bluetooth IR adapter (`firmware/ir-ble-adapter`).
+  /// Bluetooth IR adapter (`firmware/28x-ir-dongle`).
   bluetooth,
 }
 

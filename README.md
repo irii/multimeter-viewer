@@ -46,11 +46,11 @@ and CMake 3.22.1; libusb is built from `android/app/src/main/cpp/`.
 
 ## Bluetooth IR adapter
 
-A battery-powered ESP32 with an IR LED and an IR photodiode that
-connects the meter wirelessly to a smartphone or PC, or over USB while it is
-plugged in; the app finds it automatically. Circuit and firmware:
-[firmware/ir-ble-adapter](firmware/ir-ble-adapter). Work in progress:
-sending to the meter works, receiving is not yet reliable.
+A self-built adapter: an ESP32 with an IR LED and an IR phototransistor
+that connects the meter wirelessly to a smartphone or PC, or over USB while
+it is plugged in; the app finds it automatically. Circuit, firmware and 3D
+models are in a separate repository. Work in progress: sending and
+receiving work, the holder is still being refined.
 
 ## Disclaimer
 

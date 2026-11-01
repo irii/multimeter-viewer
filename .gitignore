@@ -49,3 +49,6 @@ app.*.map.json
 
 # PlatformIO
 .pio/
+
+# IR adapter: its own repository
+/hardware/
