@@ -68,6 +68,21 @@ class MeterPage extends StatelessWidget {
                         pinned: true,
                         onPressed: () => _enterCompact(context),
                       ),
+                    if (state.capabilities.isSettable(
+                      MeterFeatures.backlight,
+                      subFunction: MeterFeatures.press,
+                    ))
+                      BarAction(
+                        icon: Icons.light_mode_outlined,
+                        label: context.l10n.actionBacklight,
+                        onPressed: () => context.read<MeterBloc>().add(
+                          const MeterCapabilitySetRequested(
+                            MeterFeatures.backlight,
+                            subFunction: MeterFeatures.press,
+                            active: true,
+                          ),
+                        ),
+                      ),
                     if (state.capabilities.hasFeature(MeterFeatures.memory))
                       BarAction(
                         icon: Icons.sd_storage_outlined,

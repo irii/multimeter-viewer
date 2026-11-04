@@ -68,6 +68,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get multimeter => 'Multimeter';
 
   @override
+  String get actionBacklight => 'Beleuchtung';
+
+  @override
   String get measurementModes => 'Messmodi';
 
   @override

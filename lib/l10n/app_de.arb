@@ -19,6 +19,7 @@
   "noMeterFound": "Keine kompatiblen Geräte gefunden",
   "supportedDevices": "Unterstützte Geräte",
   "multimeter": "Multimeter",
+  "actionBacklight": "Beleuchtung",
   "measurementModes": "Messmodi",
   "capabilityNotSettable": "Nur am Gerät umschaltbar",
   "noMeterFoundHint": "Ist das Messgerät eingeschaltet und sitzt der IR-Adapter richtig? Es wird automatisch weiter gesucht.",

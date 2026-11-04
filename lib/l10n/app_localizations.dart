@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Multimeter'**
   String get multimeter;
 
+  /// No description provided for @actionBacklight.
+  ///
+  /// In en, this message translates to:
+  /// **'Backlight'**
+  String get actionBacklight;
+
   /// No description provided for @measurementModes.
   ///
   /// In en, this message translates to:

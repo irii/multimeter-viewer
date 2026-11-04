@@ -39,11 +39,16 @@ void main() {
     );
   });
 
-  test('nothing can be set', () {
+  test('only the backlight can be set', () {
     for (final capability in [...full.measurements, ...full.features]) {
       expect(capability.settable, isFalse, reason: capability.id);
       for (final sub in capability.subFunctions) {
-        expect(sub.settable, isFalse, reason: '${capability.id}/${sub.id}');
+        expect(
+          sub.settable,
+          capability.id == MeterFeatures.backlight &&
+              sub.id == MeterFeatures.press,
+          reason: '${capability.id}/${sub.id}',
+        );
       }
     }
   });

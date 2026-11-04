@@ -145,12 +145,22 @@ void main() {
       await disconnect(tester);
     });
 
+    testWidgets('the backlight button presses the backlight', (tester) async {
+      final link = FakeLink();
+      await connect(tester, link);
+      await tester.tap(find.byIcon(Icons.light_mode_outlined));
+      await tester.pump();
+      expect(link.set, ['backlight/press=true']);
+      await disconnect(tester);
+    });
+
     testWidgets('hides features the meter does not offer', (tester) async {
       await connect(
         tester,
         FakeLink(meterCapabilities: const MeterCapabilities()),
       );
       expect(find.byIcon(Icons.sd_storage_outlined), findsNothing);
+      expect(find.byIcon(Icons.light_mode_outlined), findsNothing);
       expect(find.byIcon(Icons.edit_outlined), findsNothing);
       await disconnect(tester);
     });

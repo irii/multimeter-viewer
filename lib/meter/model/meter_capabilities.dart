@@ -59,6 +59,10 @@ abstract final class MeterFeatures {
   /// Subfunctions: [read], [write].
   static const properties = 'properties';
 
+  /// Subfunction: [press].
+  static const backlight = 'backlight';
+
+  static const press = 'press';
   static const read = 'read';
   static const write = 'write';
 }

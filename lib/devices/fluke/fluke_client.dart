@@ -67,7 +67,13 @@ class FlukeClient implements MeterLink {
     String id, {
     String? subFunction,
     required bool active,
-  }) async => throw UnsupportedError('Setting $id is not supported');
+  }) async {
+    if (id == MeterFeatures.backlight && subFunction == MeterFeatures.press) {
+      await command('PRESS BACKLIGHT', expectResponse: false);
+      return;
+    }
+    throw UnsupportedError('Setting $id is not supported');
+  }
 
   /// Reads each property on its own: a meter that does not know one
   /// answers it with an error, the others are still read. Stops at the

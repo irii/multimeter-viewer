@@ -51,6 +51,28 @@ void main() {
       },
     );
 
+    test('pressing the backlight sends PRESS BACKLIGHT', () async {
+      final channel = FakeChannel()..respond('0\r');
+      await FlukeClient(channel).setCapability(
+        MeterFeatures.backlight,
+        subFunction: MeterFeatures.press,
+        active: true,
+      );
+      expect(channel.written, ['PRESS BACKLIGHT\r']);
+    });
+
+    test('a refused PRESS BACKLIGHT throws', () async {
+      final channel = FakeChannel()..respond('1\r');
+      await expectLater(
+        FlukeClient(channel).setCapability(
+          MeterFeatures.backlight,
+          subFunction: MeterFeatures.press,
+          active: true,
+        ),
+        throwsA(ackException('PRESS BACKLIGHT', '1')),
+      );
+    });
+
     test('reads the stored properties, skipping unknown ones', () async {
       final channel = FakeChannel()
         ..respond("0\r'ACME Elektro'\r")

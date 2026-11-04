@@ -84,6 +84,16 @@ const _measurements = [
 
 const _features = [
   MeterCapability(
+    MeterFeatures.backlight,
+    subFunctions: [
+      MeterSubFunction(
+        MeterFeatures.press,
+        MeterSubFunctionKind.action,
+        settable: true,
+      ),
+    ],
+  ),
+  MeterCapability(
     MeterFeatures.memory,
     subFunctions: [
       MeterSubFunction(MeterFeatures.read, MeterSubFunctionKind.action),
@@ -99,8 +109,8 @@ const _features = [
 ];
 
 /// What the meter of [identity] can do. The rotary switch and the buttons of
-/// the meter set its modes; the app can only show them, so nothing is
-/// settable.
+/// the meter set its modes; the app can only show them. The one thing it can
+/// set is the backlight.
 MeterCapabilities flukeCapabilities(MeterIdentity identity) =>
     MeterCapabilities(
       measurements: identity.meterModel == MeterModel.fluke287
