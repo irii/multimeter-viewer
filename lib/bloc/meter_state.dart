@@ -44,7 +44,7 @@ final class MeterState extends Equatable {
 
   /// Owner texts stored in the meter; `null` if they could not be read.
   final MeterProperties? properties;
-  final QddaResponse? display;
+  final MeterDisplay? display;
 
   /// System time [display] was received. Not part of equality, so an
   /// unchanged display (e.g. HOLD) does not cause a rebuild.
@@ -67,7 +67,7 @@ final class MeterState extends Equatable {
     MeterStatus? status,
     MeterIdentity? identity,
     MeterProperties? Function()? properties,
-    QddaResponse? display,
+    MeterDisplay? display,
     DateTime? receivedAt,
     SampleHistory? history,
     MeterFailure? Function()? failure,

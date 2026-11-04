@@ -6,10 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../fluke/fluke_client.dart';
+import '../adapters/adapter.dart';
+import '../adapters/serial_channel.dart';
+import '../adapters/usb/usb_adapter.dart';
 import '../l10n/l10n.dart';
 import '../router.dart';
-import '../usb/usb_meter_discovery.dart';
 import 'mono_font.dart';
 import 'widgets/window_app_bar.dart';
 
@@ -30,13 +31,13 @@ class _SerialMonitorPageState extends State<SerialMonitorPage> {
   final _clock = Stopwatch()..start();
   final List<_LogEntry> _log = [];
 
-  List<SerialPortInfo>? _ports;
+  List<AdapterDevice>? _ports;
   String? _portId;
   SerialChannel? _channel;
   bool _busy = false;
   Object? _error;
 
-  UsbMeterDiscovery get _usb => context.read<UsbMeterDiscovery?>()!;
+  UsbAdapter get _usb => context.read<UsbAdapter?>()!;
 
   @override
   void initState() {
@@ -67,7 +68,7 @@ class _SerialMonitorPageState extends State<SerialMonitorPage> {
   }
 
   Future<void> _refreshPorts() => _run(() async {
-    final ports = await _usb.listSerialPorts();
+    final ports = await _usb.exclusive(_usb.listDevices);
     if (!mounted) return;
     setState(() {
       _ports = ports;
@@ -80,7 +81,7 @@ class _SerialMonitorPageState extends State<SerialMonitorPage> {
   Future<void> _open() => _run(() async {
     final id = _portId;
     if (id == null) return;
-    final channel = await _usb.openSerialPort(id);
+    final channel = await _usb.exclusive(() => _usb.open(id));
     if (!mounted) {
       await channel.close();
       return;

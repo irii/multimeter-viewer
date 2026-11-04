@@ -1,7 +1,7 @@
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:multimeter_viewer/bloc/discovery_bloc.dart';
-import 'package:multimeter_viewer/fluke/fluke_client.dart';
-import 'package:multimeter_viewer/fluke/meter_discovery.dart';
+import 'package:multimeter_viewer/meter/meter_discovery.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';
@@ -10,7 +10,7 @@ void main() {
   const cableOnly = MeterCandidate(
     id: '403:6001:B2',
     cableName: 'FT232R (B2)',
-    error: FlukeTimeoutException('ID'),
+    error: MeterTimeoutException('ID'),
   );
 
   blocTest<DiscoveryBloc, DiscoveryState>(

@@ -5,12 +5,11 @@ import 'package:go_router/go_router.dart';
 import '../about/app_info.dart';
 import '../bloc/discovery_bloc.dart';
 import '../bloc/meter_bloc.dart';
-import '../fluke/fluke_client.dart';
-import '../fluke/meter_discovery.dart';
-import '../fluke/qdda.dart';
+import '../adapters/usb/usb_adapter.dart';
+import '../meter/meter_discovery.dart';
+import '../meter/model/model.dart';
 import '../l10n/l10n.dart';
 import '../router.dart';
-import '../usb/usb_meter_discovery.dart';
 import 'recording_page.dart';
 import 'widgets/recording_banner.dart';
 import 'widgets/window_app_bar.dart';
@@ -49,7 +48,7 @@ class ConnectPage extends StatelessWidget {
                     label: l10n.actionOpenRecording,
                     onPressed: () => openRecordingFile(context),
                   ),
-                  if (context.read<UsbMeterDiscovery?>() != null)
+                  if (context.read<UsbAdapter?>() != null)
                     BarAction(
                       icon: Icons.terminal,
                       label: l10n.serialMonitor,
@@ -139,8 +138,18 @@ class _MeterList extends StatelessWidget {
         else if (state.scanned && state.meters.isEmpty)
           _StatusMessage(
             icon: Icons.search_off,
-            title: l10n.noMeterFound(MeterModel.supportedLabel),
+            title: l10n.noMeterFound,
             message: l10n.noMeterFoundHint,
+            action: IconButton(
+              icon: const Icon(Icons.info_outline),
+              tooltip: l10n.supportedDevices,
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => _SupportedDevicesDialog(
+                  devices: discovery.supportedDevices,
+                ),
+              ),
+            ),
           )
         else if (!state.scanned)
           _StatusMessage(icon: Icons.search, title: l10n.searchingMeters),
@@ -161,7 +170,7 @@ class _MeterList extends StatelessWidget {
                 for (final cable in state.cablesWithoutMeter)
                   ListTile(
                     leading: Icon(
-                      cable.transport == MeterTransport.bluetooth
+                      cable.transport == AdapterTransport.bluetooth
                           ? Icons.bluetooth
                           : Icons.cable,
                     ),
@@ -258,12 +267,14 @@ class _StatusMessage extends StatelessWidget {
     required this.title,
     this.message,
     this.error = false,
+    this.action,
   });
 
   final IconData icon;
   final String title;
   final String? message;
   final bool error;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -300,8 +311,32 @@ class _StatusMessage extends StatelessWidget {
               ),
             ),
           ],
+          if (action case final action?) ...[const SizedBox(height: 4), action],
         ],
       ),
+    );
+  }
+}
+
+class _SupportedDevicesDialog extends StatelessWidget {
+  const _SupportedDevicesDialog({required this.devices});
+
+  final List<String> devices;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      title: Text(l10n.supportedDevices),
+      content: SingleChildScrollView(
+        child: ListBody(children: [for (final device in devices) Text(device)]),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.actionClose),
+        ),
+      ],
     );
   }
 }
@@ -447,7 +482,7 @@ class _ConnectError extends StatelessWidget {
 
 /// Why a cable has no usable meter, with advice where there is some.
 String _cableProblem(AppLocalizations l10n, Object? error) {
-  if (error == null || error is FlukeTimeoutException) {
+  if (error == null || error is MeterTimeoutException) {
     return l10n.noMeterResponds;
   }
   final hint = l10n.connectionHint(error);
@@ -457,8 +492,8 @@ String _cableProblem(AppLocalizations l10n, Object? error) {
 /// "Cable: …" or "Bluetooth: …".
 String _adapterName(AppLocalizations l10n, MeterCandidate candidate) =>
     switch (candidate.transport) {
-      MeterTransport.usb => l10n.cableName(candidate.cableName),
-      MeterTransport.bluetooth => l10n.bluetoothAdapterName(
+      AdapterTransport.usb => l10n.cableName(candidate.cableName),
+      AdapterTransport.bluetooth => l10n.bluetoothAdapterName(
         candidate.cableName,
       ),
     };

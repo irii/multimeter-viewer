@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../bloc/history.dart';
-import '../fluke/units.dart';
+import '../meter/model/units.dart';
 import '../l10n/l10n.dart';
 import '../recording/recording.dart';
 import '../recording/recording_csv.dart';

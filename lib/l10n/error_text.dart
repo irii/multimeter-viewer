@@ -1,7 +1,6 @@
 import '../bloc/meter_bloc.dart';
-import '../fluke/fluke_client.dart';
-import '../fluke/meter_discovery.dart';
-import '../fluke/qdda.dart';
+import '../meter/meter_discovery.dart';
+import '../meter/model/model.dart';
 import '../recording/recording.dart';
 import '../recording/recording_csv.dart';
 import 'app_localizations.dart';
@@ -10,19 +9,20 @@ import 'app_localizations.dart';
 /// layers. Unknown errors (e.g. libusb messages) are shown as they are.
 extension ErrorText on AppLocalizations {
   String error(Object error) => switch (error) {
-    FlukeAckException(:final command, ack: '1') => errorAckSyntax(command),
-    FlukeAckException(:final command, ack: '2') => errorAckExecution(command),
-    FlukeAckException(:final command, ack: '5') => errorAckNoData(command),
-    FlukeAckException(:final command, :final ack) => errorAckUnexpected(
+    MeterCommandRejected(:final command, reason: MeterCommandError.syntax) =>
+      errorAckSyntax(command),
+    MeterCommandRejected(:final command, reason: MeterCommandError.execution) =>
+      errorAckExecution(command),
+    MeterCommandRejected(:final command, reason: MeterCommandError.noData) =>
+      errorAckNoData(command),
+    MeterCommandRejected(:final command, :final code) => errorAckUnexpected(
       command,
-      ack,
+      code,
     ),
-    FlukeTimeoutException(:final command) => errorNoResponse(command),
-    FlukeParseException(:final message) => errorInvalidData(message),
-    MeterDiscoveryException(error: MeterDiscoveryError.deviceGone) =>
-      errorDeviceGone,
-    MeterDiscoveryException(error: MeterDiscoveryError.deviceInUse) =>
-      errorDeviceInUse,
+    MeterTimeoutException(:final command) => errorNoResponse(command),
+    MeterParseException(:final message) => errorInvalidData(message),
+    AdapterException(error: AdapterError.deviceGone) => errorDeviceGone,
+    AdapterException(error: AdapterError.deviceInUse) => errorDeviceInUse,
     RecordingFormatException(
       error: RecordingFormatError.missingColumn,
       :final detail,
@@ -54,7 +54,7 @@ extension ErrorText on AppLocalizations {
   /// What the user can do about [error], or `null` if there is no advice.
   String? connectionHint(Object? error) {
     if (error == null) return null;
-    if (error is FlukeTimeoutException) return hintNoResponse;
+    if (error is MeterTimeoutException) return hintNoResponse;
     final text = '$error';
     if (text.contains('libusb-1.0 shared library')) return hintLibusbMissing;
     if (text.contains('LIBUSB_ERROR_BUSY') ||

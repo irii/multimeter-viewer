@@ -1,15 +1,12 @@
-/// Minimal FTDI (FT232R) USB-serial driver on top of `unified_usb`, enough to
-/// talk to the meter's IR USB cable at 115200 8N1.
+/// Minimal FTDI (FT232R) USB-serial driver on top of `unified_usb`, at 115200 8N1.
 library;
 
 import 'dart:async';
 
 import 'package:unified_usb/unified_usb.dart';
 
-import '../fluke/fluke_client.dart';
+import '../serial_channel.dart';
 import 'usb_util.dart';
-
-const int ftdiVendorId = 0x0403;
 
 // FTDI vendor requests (see libftdi / AN232B-04).
 const int _sioReset = 0x00;

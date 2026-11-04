@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../bloc/history.dart';
-import '../../fluke/units.dart';
+import '../../meter/model/units.dart';
 import '../../l10n/l10n.dart';
 
 /// Charts narrower than this show the values inside the plot instead of on

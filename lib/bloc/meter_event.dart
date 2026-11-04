@@ -25,7 +25,7 @@ final class MeterDisconnectRequested extends MeterEvent {
 final class _MeterPolled extends MeterEvent {
   const _MeterPolled(this.display);
 
-  final QddaResponse display;
+  final MeterDisplay display;
 
   @override
   List<Object?> get props => [display];

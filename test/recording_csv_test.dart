@@ -1,6 +1,7 @@
+import 'package:multimeter_viewer/devices/fluke/qdda.dart';
 import 'package:multimeter_viewer/about/app_info.dart';
-import 'package:multimeter_viewer/fluke/fluke_memory_reader.dart';
-import 'package:multimeter_viewer/fluke/qdda.dart';
+import 'package:multimeter_viewer/meter/meter_memory.dart';
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:multimeter_viewer/recording/recording.dart';
 import 'package:multimeter_viewer/recording/recording_csv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,7 +29,7 @@ Recording sampleRecording() => Recording(
     ),
     RecordingSample.fromDisplay(
       systemTime: DateTime.utc(1970, 1, 1, 0, 1, 43, 800).toLocal(),
-      QddaResponse.parse(
+      parseDisplay(
         'MV_AC,NONE,AUTO,VAC,50,-3,OFF,0.000,1,HOLD,2,'
         'LIVE,9.99999999E+37,VAC,-3,3,5,OL,NONE,101.5,'
         'PRIMARY,9.99999999E+37,VAC,-3,3,5,OL,NONE,101.5',

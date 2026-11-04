@@ -59,9 +59,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanFailed => 'Search failed';
 
   @override
-  String noMeterFound(String models) {
-    return 'No $models found';
-  }
+  String get noMeterFound => 'No compatible devices found';
+
+  @override
+  String get supportedDevices => 'Supported devices';
+
+  @override
+  String get multimeter => 'Multimeter';
 
   @override
   String get noMeterFoundHint =>

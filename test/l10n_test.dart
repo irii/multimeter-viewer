@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:multimeter_viewer/app.dart';
 import 'package:multimeter_viewer/bloc/meter_bloc.dart';
-import 'package:multimeter_viewer/fluke/fluke_client.dart';
 import 'package:multimeter_viewer/l10n/l10n.dart';
 import 'package:multimeter_viewer/recording/recording.dart';
 import 'package:multimeter_viewer/recording/recording_csv.dart';
@@ -41,15 +41,19 @@ void main() {
 
   test('errors are localized', () {
     expect(
-      en.error(const FlukeAckException('QDDA', '1')),
+      en.error(
+        const MeterCommandRejected('QDDA', MeterCommandError.syntax, '1'),
+      ),
       'QDDA: syntax error',
     );
     expect(
-      de.error(const FlukeAckException('QDDA', '1')),
+      de.error(
+        const MeterCommandRejected('QDDA', MeterCommandError.syntax, '1'),
+      ),
       'QDDA: Syntaxfehler',
     );
     expect(
-      de.error(const FlukeTimeoutException('ID')),
+      de.error(const MeterTimeoutException('ID')),
       'ID: Keine Antwort vom Messgerät',
     );
     expect(
@@ -66,7 +70,7 @@ void main() {
       'Invalid recording file: column “value” is missing',
     );
     expect(
-      en.connectionHint(const FlukeTimeoutException('ID')),
+      en.connectionHint(const MeterTimeoutException('ID')),
       en.hintNoResponse,
     );
     // Unknown errors (e.g. from libusb) are shown as they are.

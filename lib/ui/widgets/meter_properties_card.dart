@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../fluke/meter_properties.dart';
+import '../../meter/model/meter_properties.dart';
 import '../../l10n/l10n.dart';
 
 /// Company, operator, site and contact stored in the meter; only the

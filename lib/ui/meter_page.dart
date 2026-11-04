@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../bloc/meter_bloc.dart';
 import '../compact/compact_mode_cubit.dart';
-import '../fluke/qdda.dart';
 import '../l10n/l10n.dart';
 import '../recording/recording_bloc.dart';
 import '../router.dart';
@@ -34,7 +33,7 @@ class MeterPage extends StatelessWidget {
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(identity?.model ?? MeterModel.supportedLabel),
+                  Text(identity?.model ?? context.l10n.multimeter),
                   if (identity != null)
                     // Builder: the bar's text color, not the page's.
                     Builder(

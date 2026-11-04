@@ -16,14 +16,9 @@
   "availableMeters": "Available meters",
   "connectInstructions": "Plug in the IR USB cable or switch on the Bluetooth adapter, attach it to the meter and switch the meter on. Searching starts automatically.",
   "scanFailed": "Search failed",
-  "noMeterFound": "No {models} found",
-  "@noMeterFound": {
-    "placeholders": {
-      "models": {
-        "type": "String"
-      }
-    }
-  },
+  "noMeterFound": "No compatible devices found",
+  "supportedDevices": "Supported devices",
+  "multimeter": "Multimeter",
   "noMeterFoundHint": "Is the meter switched on and the IR adapter seated correctly? Searching continues automatically.",
   "searchingMeters": "Searching for meters …",
   "cablesWithoutMeter": "Adapters without meter",

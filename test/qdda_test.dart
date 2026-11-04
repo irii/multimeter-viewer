@@ -1,12 +1,13 @@
-import 'package:multimeter_viewer/fluke/qdda.dart';
+import 'package:multimeter_viewer/devices/fluke/qdda.dart';
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';
 
 void main() {
-  group('QddaResponse.parse', () {
+  group('parseDisplay', () {
     test('plain MV_AC display', () {
-      final r = QddaResponse.parse(sampleQdda);
+      final r = parseDisplay(sampleQdda);
       expect(r.primaryFunction, 'MV_AC');
       expect(r.secondaryFunction, 'NONE');
       expect(r.range.autoRange, isTrue);
@@ -23,7 +24,7 @@ void main() {
     });
 
     test('MV_AC with PEAK_MIN_MAX and MIN MAX readings', () {
-      final r = QddaResponse.parse(sampleQddaMinMax);
+      final r = parseDisplay(sampleQddaMinMax);
       expect(r.secondaryFunction, 'PEAK_MIN_MAX');
       expect(r.modes, ['MIN_MAX_AVG']);
       expect(r.minMaxStartTime, 1793197020.400);
@@ -35,7 +36,7 @@ void main() {
     });
 
     test('overload', () {
-      final r = QddaResponse.parse(
+      final r = parseDisplay(
         'OHMS,NONE,AUTO,OHM,5,6,OFF,0.000,0,2,'
         'LIVE,9.99999999E+37,OHM,6,2,5,OL,NONE,1793196900.250,'
         'PRIMARY,+9.99999999E+37,OHM,6,2,5,OL,NONE,1793196900.250',
@@ -47,8 +48,8 @@ void main() {
 
     test('too short response throws', () {
       expect(
-        () => QddaResponse.parse('MV_AC,NONE,AUTO'),
-        throwsA(isA<FlukeParseException>()),
+        () => parseDisplay('MV_AC,NONE,AUTO'),
+        throwsA(isA<MeterParseException>()),
       );
     });
   });
@@ -56,7 +57,7 @@ void main() {
   group('MeterIdentity.parse', () {
     test('model, firmware and serial', () {
       expect(
-        MeterIdentity.parse('FLUKE 289,V1.00,40211337'),
+        parseIdentity('FLUKE 289,V1.00,40211337'),
         const MeterIdentity(
           model: 'FLUKE 289',
           firmware: 'V1.00',
@@ -66,36 +67,32 @@ void main() {
     });
 
     test('rejects garbage', () {
-      expect(
-        () => MeterIdentity.parse('hello'),
-        throwsA(isA<FlukeParseException>()),
-      );
+      expect(() => parseIdentity('hello'), throwsA(isA<MeterParseException>()));
     });
   });
 
   group('MeterIdentity.meterModel', () {
     test('recognizes 287 and 289', () {
       expect(
-        MeterIdentity.parse('FLUKE 287,V2.02,12345678').meterModel,
+        parseIdentity('FLUKE 287,V2.02,12345678').meterModel,
         MeterModel.fluke287,
       );
       expect(
-        MeterIdentity.parse('FLUKE 289,V1.00,40211337').meterModel,
+        parseIdentity('FLUKE 289,V1.00,40211337').meterModel,
         MeterModel.fluke289,
       );
       expect(MeterModel.fluke287.isSupported, isTrue);
-      expect(MeterModel.supportedLabel, 'Fluke 287/289');
     });
 
     test('other models are unknown but still parse', () {
-      final id = MeterIdentity.parse('FLUKE 189,V2.0,111');
+      final id = parseIdentity('FLUKE 189,V2.0,111');
       expect(id.meterModel, MeterModel.unknown);
       expect(id.meterModel.isSupported, isFalse);
     });
   });
 
   test('parses a Fluke 287 display (no LoZ/LoΩ functions involved)', () {
-    final r = QddaResponse.parse(
+    final r = parseDisplay(
       'V_DC,NONE,AUTO,VDC,5,0,OFF,0.000,0,2,'
       'LIVE,1.2345,VDC,0,4,5,NORMAL,NONE,1761656700.000,'
       'PRIMARY,1.2345,VDC,0,4,5,NORMAL,NONE,1761656700.000',

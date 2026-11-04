@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../bloc/meter_bloc.dart';
-import '../fluke/meter_properties.dart';
+import '../meter/model/meter_properties.dart';
 import '../l10n/l10n.dart';
 
 /// Edits company, operator, site and contact and saves them in the meter.

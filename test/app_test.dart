@@ -1,13 +1,12 @@
 import 'package:multimeter_viewer/app.dart';
 import 'package:multimeter_viewer/bloc/time_base_cubit.dart';
-import 'package:multimeter_viewer/fluke/meter_discovery.dart';
-import 'package:multimeter_viewer/fluke/qdda.dart';
+import 'package:multimeter_viewer/meter/meter_discovery.dart';
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:multimeter_viewer/recording/recording_csv.dart';
 import 'package:multimeter_viewer/ui/recording_page.dart';
 import 'package:multimeter_viewer/ui/meter_page.dart';
 import 'package:multimeter_viewer/ui/widgets/meter_properties_card.dart';
 import 'package:multimeter_viewer/ui/widgets/primary_display.dart';
-import 'package:multimeter_viewer/fluke/meter_properties.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -112,7 +111,17 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Kein Fluke 287/289 gefunden'), findsOneWidget);
+    expect(find.text('Keine kompatiblen Geräte gefunden'), findsOneWidget);
+    expect(find.textContaining('Fluke'), findsNothing);
+
+    await tester.tap(find.byTooltip('Unterstützte Geräte'));
+    await tester.pumpAndSettle();
+    expect(find.text('Fluke 287'), findsOneWidget);
+    expect(find.text('Fluke 289'), findsOneWidget);
+
+    await tester.tap(find.text('Schließen'));
+    await tester.pumpAndSettle();
+    expect(find.text('Fluke 287'), findsNothing);
   });
 
   testWidgets('opens a recording file without a meter connection', (

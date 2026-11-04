@@ -2,8 +2,8 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../fluke/fluke_memory_reader.dart';
-import '../fluke/qdda.dart';
+import '../meter/meter_memory.dart';
+import '../meter/model/model.dart';
 import '../recording/recording.dart';
 
 sealed class MemoryEvent extends Equatable {

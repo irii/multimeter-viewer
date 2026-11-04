@@ -51,6 +51,24 @@ that connects the meter wirelessly to a smartphone or PC, or over USB while
 it is plugged in; the app finds it automatically. Circuit, firmware and 3D
 models are in a separate repository.‚
 
+## Adding another meter
+
+The code is split into three layers:
+
+- `lib/adapters/`: transports (USB, Bluetooth LE). They only find devices and
+  pass bytes. Each device class attaches the filters of the devices it wants
+  with `attachFilter` and detaches them with `detachFilter`.
+- `lib/meter/`: the data the app works with and the interfaces it uses
+  (`MeterDiscovery`, `MeterProtocol`, `MeterLink`).
+- `lib/devices/`: one folder per kind of device. A device class takes the
+  adapters as parameters and is the discovery for that device, e.g.
+  `FlukeDevice(usb: usb, ble: ble)`.
+
+For another meter, add a folder in `lib/devices/`: implement `MeterProtocol`
+and `MeterLink`, convert the answers to the types in `lib/meter/model/`, write
+a device class like `lib/devices/fluke/fluke_device.dart` and add it in
+`lib/devices/devices.dart`.
+
 ## Disclaimer
 
 This is an unofficial application, not made, supported or endorsed by Fluke

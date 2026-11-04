@@ -1,5 +1,5 @@
 import 'package:multimeter_viewer/bloc/history.dart';
-import 'package:multimeter_viewer/fluke/qdda.dart';
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Reading reading({

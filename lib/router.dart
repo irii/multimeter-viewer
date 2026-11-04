@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'bloc/discovery_bloc.dart';
 import 'bloc/memory_bloc.dart';
 import 'bloc/meter_bloc.dart';
-import 'fluke/meter_discovery.dart';
+import 'meter/meter_discovery.dart';
 import 'ui/about_page.dart';
 import 'ui/compact_page.dart';
 import 'ui/licenses_page.dart';

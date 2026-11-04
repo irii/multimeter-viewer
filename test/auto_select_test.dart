@@ -1,5 +1,5 @@
 import 'package:multimeter_viewer/app.dart';
-import 'package:multimeter_viewer/fluke/meter_discovery.dart';
+import 'package:multimeter_viewer/meter/meter_discovery.dart';
 import 'package:multimeter_viewer/ui/meter_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -80,7 +80,7 @@ void main() {
     discovery.changes.add(null);
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pumpAndSettle();
-    expect(find.text('Kein Fluke 287/289 gefunden'), findsOneWidget);
+    expect(find.text('Keine kompatiblen Geräte gefunden'), findsOneWidget);
 
     // ... and plugged in again: connects.
     discovery.candidates = const [fakeCandidate];

@@ -6,7 +6,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '../bloc/meter_bloc.dart';
 import '../compact/compact_mode_cubit.dart';
-import '../fluke/qdda.dart';
+import '../meter/model/model.dart';
 import '../l10n/l10n.dart';
 import '../recording/recording_bloc.dart';
 import '../router.dart';

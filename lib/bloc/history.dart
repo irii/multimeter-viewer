@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../fluke/qdda.dart';
+import '../meter/model/model.dart';
 
 /// One point of the primary-reading history. A `null` [value] marks a gap
 /// (OL, invalid, blank, ...).

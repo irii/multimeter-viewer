@@ -1,21 +1,21 @@
 import 'dart:async';
 
+import 'package:multimeter_viewer/devices/fluke/qdda.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:multimeter_viewer/bloc/meter_bloc.dart';
-import 'package:multimeter_viewer/fluke/qdda.dart';
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:multimeter_viewer/recording/recording_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';
 
-QddaResponse displayAt(double t, {double value = 0.007312}) =>
-    QddaResponse.parse(
-      'MV_AC,NONE,AUTO,VAC,50,-3,OFF,0.000,0,2,'
-      'LIVE,$value,VAC,-3,3,5,NORMAL,NONE,$t,'
-      'PRIMARY,$value,VAC,-3,3,5,NORMAL,NONE,$t',
-    );
+MeterDisplay displayAt(double t, {double value = 0.007312}) => parseDisplay(
+  'MV_AC,NONE,AUTO,VAC,50,-3,OFF,0.000,0,2,'
+  'LIVE,$value,VAC,-3,3,5,NORMAL,NONE,$t,'
+  'PRIMARY,$value,VAC,-3,3,5,NORMAL,NONE,$t',
+);
 
-MeterState connected(QddaResponse display, {DateTime? receivedAt}) =>
+MeterState connected(MeterDisplay display, {DateTime? receivedAt}) =>
     MeterState(
       status: MeterStatus.connected,
       identity: FakeLink.identity,

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/history.dart';
 import '../../bloc/time_base_cubit.dart';
-import '../../fluke/units.dart';
+import '../../meter/model/units.dart';
 import '../../l10n/l10n.dart';
 import 'value_chart.dart';
 

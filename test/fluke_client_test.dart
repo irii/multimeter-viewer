@@ -1,5 +1,6 @@
-import 'package:multimeter_viewer/fluke/fluke_client.dart';
-import 'package:multimeter_viewer/usb/ftdi_serial.dart';
+import 'package:multimeter_viewer/devices/fluke/fluke_client.dart';
+import 'package:multimeter_viewer/adapters/usb/ftdi_serial.dart';
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';
@@ -33,7 +34,7 @@ void main() {
         final channel = FakeChannel()..respond('$ack\r');
         await expectLater(
           FlukeClient(channel).command('QDDA'),
-          throwsA(FlukeAckException('QDDA', ack)),
+          throwsA(ackException('QDDA', ack)),
         );
       });
     }
@@ -80,7 +81,7 @@ void main() {
       await expectLater(
         FlukeClient(FakeChannel())
             .command('QDDA', timeout: const Duration(milliseconds: 50)),
-        throwsA(isA<FlukeTimeoutException>()),
+        throwsA(isA<MeterTimeoutException>()),
       );
     });
   });

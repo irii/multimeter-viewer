@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../fluke/qdda.dart';
+import '../../meter/model/model.dart';
 import '../../l10n/l10n.dart';
 import '../mono_font.dart';
 

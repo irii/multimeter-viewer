@@ -197,8 +197,20 @@ abstract class AppLocalizations {
   /// No description provided for @noMeterFound.
   ///
   /// In en, this message translates to:
-  /// **'No {models} found'**
-  String noMeterFound(String models);
+  /// **'No compatible devices found'**
+  String get noMeterFound;
+
+  /// No description provided for @supportedDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Supported devices'**
+  String get supportedDevices;
+
+  /// No description provided for @multimeter.
+  ///
+  /// In en, this message translates to:
+  /// **'Multimeter'**
+  String get multimeter;
 
   /// No description provided for @noMeterFoundHint.
   ///

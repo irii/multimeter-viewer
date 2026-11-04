@@ -7,7 +7,7 @@ also shown in the app under *About → Open-source licenses*.
 ## Protocol knowledge
 
 The binary layouts of the memory commands (`qsls`, `qemap`, `qrsi`, `qsrr`,
-`qmmsi`, `qpsi`, `qsmr`) in `lib/fluke/fluke_memory.dart` follow the
+`qmmsi`, `qpsi`, `qsmr`) in `lib/devices/fluke/fluke_memory.dart` follow the
 reverse-engineered descriptions of these projects. The test data in
 `test/fluke_memory_test.dart` was captured by dmm_util.
 

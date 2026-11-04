@@ -3,8 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../bloc/memory_bloc.dart';
-import '../fluke/fluke_memory_reader.dart';
-import '../fluke/qdda.dart';
+import '../meter/model/model.dart';
 import '../l10n/l10n.dart';
 import '../recording/viewer_bloc.dart';
 import '../router.dart';

@@ -4,7 +4,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../fluke/meter_discovery.dart';
+import '../meter/meter_discovery.dart';
 
 sealed class DiscoveryEvent extends Equatable {
   const DiscoveryEvent();
@@ -106,6 +106,8 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
       return false;
     }
   }
+
+  List<String> get supportedDevices => _discovery.supportedDevices;
 
   bool get canRequestDevice {
     try {

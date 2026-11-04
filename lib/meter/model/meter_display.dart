@@ -1,79 +1,8 @@
-library;
-
 import 'dart:math' as math;
 
 import 'package:equatable/equatable.dart';
 
 import 'units.dart';
-
-/// The meter sent data that does not match the protocol.
-class FlukeParseException extends Equatable implements Exception {
-  const FlukeParseException(this.message);
-
-  /// Technical English description.
-  final String message;
-
-  @override
-  List<Object?> get props => [message];
-
-  @override
-  String toString() => 'FlukeParseException: $message';
-}
-
-enum MeterModel {
-  fluke287('Fluke 287'),
-  fluke289('Fluke 289'),
-
-  /// Answers like a Fluke but is not a 287/289; may work, untested.
-  unknown('Fluke');
-
-  const MeterModel(this.label);
-
-  final String label;
-
-  static const supported = [fluke287, fluke289];
-
-  bool get isSupported => supported.contains(this);
-
-  /// Display names of all supported models, e.g. `Fluke 287/289`.
-  static String get supportedLabel =>
-      'Fluke ${supported.map((m) => m.label.split(' ').last).join('/')}';
-}
-
-class MeterIdentity extends Equatable {
-  const MeterIdentity({
-    required this.model,
-    required this.firmware,
-    required this.serial,
-  });
-
-  factory MeterIdentity.parse(String response) {
-    final parts = response.split(',').map((p) => p.trim()).toList();
-    if (parts.length < 3 || !parts[0].toUpperCase().startsWith('FLUKE')) {
-      throw FlukeParseException('Unexpected ID response: "$response"');
-    }
-    return MeterIdentity(model: parts[0], firmware: parts[1], serial: parts[2]);
-  }
-
-  /// Model as reported by the meter, e.g. `FLUKE 287`.
-  final String model;
-  final String firmware;
-  final String serial;
-
-  /// Model family derived from [model]. The 287 and 289 share the protocol;
-  /// the 287 just lacks some functions (LoZ, LoΩ).
-  MeterModel get meterModel {
-    final number = RegExp(r'\b(\d{3})\b').firstMatch(model)?.group(1);
-    return switch (number) {
-      '287' => MeterModel.fluke287,
-      '289' => MeterModel.fluke289,
-      _ => MeterModel.unknown,
-    };
-  }
-
-  @override
-  List<Object?> get props => [model, firmware, serial];
-}
 
 class RangeData extends Equatable {
   const RangeData({
@@ -183,8 +112,8 @@ class Reading extends Equatable {
   ];
 }
 
-class QddaResponse extends Equatable {
-  const QddaResponse({
+class MeterDisplay extends Equatable {
+  const MeterDisplay({
     required this.primaryFunction,
     required this.secondaryFunction,
     required this.range,
@@ -193,8 +122,6 @@ class QddaResponse extends Equatable {
     required this.modes,
     required this.readings,
   });
-
-  factory QddaResponse.parse(String response) => _QddaParser(response).parse();
 
   final String primaryFunction;
   final String secondaryFunction;
@@ -227,74 +154,6 @@ class QddaResponse extends Equatable {
     modes,
     readings,
   ];
-}
-
-class _QddaParser {
-  _QddaParser(String response)
-    : _tokens = response.split(',').map((t) => t.trim()).toList(),
-      _response = response;
-
-  final String _response;
-  final List<String> _tokens;
-  int _pos = 0;
-
-  QddaResponse parse() {
-    final primaryFunction = _next();
-    final secondaryFunction = _next();
-    final range = RangeData(
-      autoRange: _next() == 'AUTO',
-      baseUnit: _next(),
-      rangeNumber: _int(),
-      multiplier: _int(),
-    );
-    final lightningBolt = _next() == 'ON';
-    final minMaxStartTime = _double();
-    final modeCount = _int();
-    final modes = [for (var i = 0; i < modeCount; i++) _next()];
-    final readingCount = _int();
-    final readings = [
-      for (var i = 0; i < readingCount; i++)
-        Reading(
-          id: _next(),
-          value: _double(),
-          baseUnit: _next(),
-          multiplier: _int(),
-          decimalPlaces: _int(),
-          displayDigits: _int(),
-          state: _next(),
-          attribute: _next(),
-          timestamp: _double(),
-        ),
-    ];
-    return QddaResponse(
-      primaryFunction: primaryFunction,
-      secondaryFunction: secondaryFunction,
-      range: range,
-      lightningBolt: lightningBolt,
-      minMaxStartTime: minMaxStartTime,
-      modes: modes,
-      readings: readings,
-    );
-  }
-
-  String _next() {
-    if (_pos >= _tokens.length) {
-      throw FlukeParseException('QDDA response too short: "$_response"');
-    }
-    return _tokens[_pos++];
-  }
-
-  int _int() {
-    final token = _next();
-    return int.tryParse(token) ??
-        (throw FlukeParseException('Expected integer, got "$token"'));
-  }
-
-  double _double() {
-    final token = _next();
-    return double.tryParse(token) ??
-        (throw FlukeParseException('Expected number, got "$token"'));
-  }
 }
 
 /// Prefixes [text] with a space unless it already starts with `-`, so a

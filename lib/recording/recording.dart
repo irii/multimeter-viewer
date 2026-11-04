@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../fluke/qdda.dart';
+import '../meter/model/model.dart';
 
 /// What the user entered before starting a recording.
 class RecordingInfo extends Equatable {
@@ -61,7 +61,7 @@ class RecordingSample extends Equatable {
   });
 
   factory RecordingSample.fromDisplay(
-    QddaResponse display,
+    MeterDisplay display,
     Duration elapsed, {
     required DateTime systemTime,
   }) => RecordingSample(

@@ -1,6 +1,6 @@
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:multimeter_viewer/bloc/meter_bloc.dart';
-import 'package:multimeter_viewer/fluke/fluke_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';
@@ -84,7 +84,7 @@ void main() {
   blocTest<MeterBloc, MeterState>(
     'connector error leads to failure',
     build: () => MeterBloc(
-      connector: (_) async => throw const FlukeTimeoutException('ID'),
+      connector: (_) async => throw const MeterTimeoutException('ID'),
     ),
     act: (bloc) => bloc.add(const MeterConnectRequested(fakeCandidate)),
     expect: () => [
@@ -93,7 +93,7 @@ void main() {
         status: MeterStatus.failure,
         failure: MeterFailure(
           MeterFailureKind.connect,
-          FlukeTimeoutException('ID'),
+          MeterTimeoutException('ID'),
         ),
       ),
     ],
@@ -101,13 +101,13 @@ void main() {
 
   blocTest<MeterBloc, MeterState>(
     'repeated poll failures disconnect',
-    build: () => build(responses: [const FlukeTimeoutException('QDDA')]),
+    build: () => build(responses: [const MeterTimeoutException('QDDA')]),
     act: (bloc) => bloc.add(const MeterConnectRequested(fakeCandidate)),
     wait: const Duration(milliseconds: 100),
     verify: (bloc) {
       expect(bloc.state.status, MeterStatus.failure);
       expect(bloc.state.failure?.kind, MeterFailureKind.connectionLost);
-      expect(bloc.state.failure?.cause, const FlukeTimeoutException('QDDA'));
+      expect(bloc.state.failure?.cause, const MeterTimeoutException('QDDA'));
       expect(link.closed, isTrue);
     },
   );
@@ -115,7 +115,7 @@ void main() {
   blocTest<MeterBloc, MeterState>(
     'single poll failure only warns',
     build: () =>
-        build(responses: [const FlukeTimeoutException('QDDA'), sampleQdda]),
+        build(responses: [const MeterTimeoutException('QDDA'), sampleQdda]),
     act: (bloc) => bloc.add(const MeterConnectRequested(fakeCandidate)),
     wait: const Duration(milliseconds: 50),
     verify: (bloc) {

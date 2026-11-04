@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:multimeter_viewer/adapters/serial_channel.dart';
+import 'package:multimeter_viewer/devices/fluke/qdda.dart';
 import 'package:multimeter_viewer/compact/compact_window.dart';
-import 'package:multimeter_viewer/fluke/fluke_client.dart';
-import 'package:multimeter_viewer/fluke/fluke_memory_reader.dart';
+import 'package:multimeter_viewer/meter/meter_link.dart';
+import 'package:multimeter_viewer/meter/meter_memory.dart';
 import 'package:multimeter_viewer/recording/recording.dart';
-import 'package:multimeter_viewer/fluke/meter_discovery.dart';
-import 'package:multimeter_viewer/fluke/qdda.dart';
+import 'package:multimeter_viewer/meter/meter_discovery.dart';
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:multimeter_viewer/settings/settings_cubit.dart';
 
 export 'package:multimeter_viewer/settings/settings_store.dart'
@@ -108,13 +110,13 @@ class FakeLink implements MeterLink {
   Future<MeterIdentity> identify() async => meterIdentity;
 
   @override
-  Future<QddaResponse> queryDisplay() async {
+  Future<MeterDisplay> queryDisplay() async {
     final r = responses.isEmpty
         ? _liveExample(_polls++)
         : responses[_index < responses.length
               ? _index++
               : responses.length - 1];
-    if (r is String) return QddaResponse.parse(r);
+    if (r is String) return parseDisplay(r);
     throw r;
   }
 
@@ -153,6 +155,9 @@ class FakeDiscovery implements MeterDiscovery {
   final changes = StreamController<void>.broadcast();
   int scans = 0;
   Object? scanError;
+
+  @override
+  List<String> get supportedDevices => const ['Fluke 287', 'Fluke 289'];
 
   @override
   bool get canRequestDevice => false;

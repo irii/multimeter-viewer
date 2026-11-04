@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:multimeter_viewer/fluke/fluke_client.dart';
-import 'package:multimeter_viewer/fluke/fluke_memory_reader.dart';
-import 'package:multimeter_viewer/fluke/qdda.dart';
+import 'package:multimeter_viewer/devices/fluke/fluke_client.dart';
+import 'package:multimeter_viewer/devices/fluke/fluke_memory.dart';
+import 'package:multimeter_viewer/meter/meter_memory.dart';
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';
@@ -67,7 +68,7 @@ void main() {
   });
 
   test('parses a recording header (qrsi)', () {
-    final r = MemoryRecording.parse(0, hex(_qrsiHex), maps);
+    final r = parseMemoryRecording(0, hex(_qrsiHex), maps);
     expect(r.name, 'Battery 1');
     expect(r.startTime, DateTime(2010, 5, 7, 22, 48, 35, 312, 500));
     expect(r.endTime.second, 47);
@@ -83,11 +84,11 @@ void main() {
     expect(r.modes, ['RECORD']);
     expect(r.readings.single.id, 'PRIMARY');
     expect(r.readings.single.value, closeTo(0.0353, 1e-9));
-    expect(MemoryRecording.minLength(hex(_qrsiHex)), 78 + 30);
+    expect(memoryRecordingMinLength(hex(_qrsiHex)), 78 + 30);
   });
 
   test('parses a recording interval (qsrr) and fixes the average', () {
-    final s = MemoryRecordingSample.parse(hex(_qsrrHex), maps);
+    final s = parseMemoryRecordingSample(hex(_qsrrHex), maps);
     expect(s.duration, const Duration(milliseconds: 11800));
     expect(s.minimum!.value, closeTo(0.0348, 1e-9));
     expect(s.maximum!.value, closeTo(0.0362, 1e-9));
@@ -101,8 +102,8 @@ void main() {
   });
 
   test('converts a meter recording into an app recording', () {
-    final info = MemoryRecording.parse(0, hex(_qrsiHex), maps);
-    final sample = MemoryRecordingSample.parse(hex(_qsrrHex), maps);
+    final info = parseMemoryRecording(0, hex(_qrsiHex), maps);
+    final sample = parseMemoryRecordingSample(hex(_qsrrHex), maps);
     final r = memoryRecordingToRecording(info, [sample, sample]);
     expect(r.info.name, 'Battery 1');
     expect(r.startedAt, info.startTime);
@@ -119,7 +120,7 @@ void main() {
     });
     expect(
       () => MeterMaps.parseMap(['3', '0', 'OFF']),
-      throwsA(isA<FlukeParseException>()),
+      throwsA(isA<MeterParseException>()),
     );
     expect(
       MemoryCounts.parse(['4', '3', '1', '9']),
@@ -140,8 +141,8 @@ void main() {
     test('fixed length, split into chunks, with CR bytes inside', () async {
       // CR bytes inside and at the end of the data must not end the reply.
       final payload = Uint8List.fromList([
-        for (var i = 0; i < MemoryRecordingSample.size; i++)
-          i == 10 || i == 19 || i == MemoryRecordingSample.size - 1 ? 0x0D : i,
+        for (var i = 0; i < memoryRecordingSampleSize; i++)
+          i == 10 || i == 19 || i == memoryRecordingSampleSize - 1 ? 0x0D : i,
       ]);
       final bytes = response(payload);
       final channel = FakeChannel();
@@ -149,7 +150,7 @@ void main() {
         channel.chunks.add(bytes.sublist(i, (i + 20).clamp(0, bytes.length)));
       }
       final result = await FlukeClient(channel)
-          .binaryCommand('qsrr 7,0', length: MemoryRecordingSample.size);
+          .binaryCommand('qsrr 7,0', length: memoryRecordingSampleSize);
       expect(result, payload);
       expect(channel.written, ['qsrr 7,0\r']);
     });
@@ -162,7 +163,7 @@ void main() {
         ..chunks.add(bytes.sublist(50, 120))
         ..chunks.add(bytes.sublist(120));
       final result = await FlukeClient(channel)
-          .binaryCommand('qrsi 0', minLength: MemoryRecording.minLength);
+          .binaryCommand('qrsi 0', minLength: memoryRecordingMinLength);
       expect(result, payload);
     });
 

@@ -1,18 +1,13 @@
-/// Minimal USB CDC-ACM serial driver on top of `unified_usb`, for the
-/// Bluetooth IR adapter while it is plugged in over USB
-/// (`firmware/28x-ir-dongle`): it passes the bytes through to the meter's
-/// IR port at the meter's 115200 baud, so no line settings are sent.
+/// Minimal USB CDC-ACM serial driver on top of `unified_usb`, for devices
+/// that set their own line speed, so no line settings are sent.
 library;
 
 import 'dart:async';
 
 import 'package:unified_usb/unified_usb.dart';
 
-import '../fluke/fluke_client.dart';
+import '../serial_channel.dart';
 import 'usb_util.dart';
-
-/// Espressif: the adapter's ESP32 shows up with its own USB controller.
-const int espressifVendorId = 0x303A;
 
 /// USB class of the CDC data interface that carries the bytes.
 const int _cdcDataClass = 0x0A;
@@ -140,7 +135,7 @@ class CdcSerial implements SerialChannel {
     }
     if (_kernelDriverDetached) {
       try {
-        // Give the adapter back to the OS (e.g. as /dev/ttyACM0).
+        // Give the device back to the OS (e.g. as /dev/ttyACM0).
         await _device.attachKernelDriver(_interfaceNumber);
       } on UsbException {
         // Device gone or driver no longer available.

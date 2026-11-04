@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/meter_bloc.dart';
-import '../fluke/qdda.dart';
+import '../meter/model/model.dart';
 import 'recording.dart';
 
 export 'recording.dart';

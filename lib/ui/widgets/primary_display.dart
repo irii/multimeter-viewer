@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../fluke/qdda.dart';
+import '../../meter/model/model.dart';
 import '../../l10n/l10n.dart';
 import '../mono_font.dart';
 
@@ -9,7 +9,7 @@ import '../mono_font.dart';
 class PrimaryDisplay extends StatelessWidget {
   const PrimaryDisplay({super.key, required this.display});
 
-  final QddaResponse display;
+  final MeterDisplay display;
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../fluke/qdda.dart';
+import '../../meter/model/model.dart';
 import '../../l10n/l10n.dart';
 
 /// Active modes and MIN MAX start time as chips (the range is part of
@@ -8,10 +8,10 @@ import '../../l10n/l10n.dart';
 class StatusChips extends StatelessWidget {
   const StatusChips({super.key, required this.display});
 
-  final QddaResponse display;
+  final MeterDisplay display;
 
   /// Whether [display] has anything to show as a chip.
-  static bool hasChips(QddaResponse display) =>
+  static bool hasChips(MeterDisplay display) =>
       display.modes.isNotEmpty || display.minMaxStart != null;
 
   @override

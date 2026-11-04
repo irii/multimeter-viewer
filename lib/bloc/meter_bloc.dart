@@ -4,9 +4,9 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../fluke/fluke_client.dart';
-import '../fluke/meter_discovery.dart';
-import '../fluke/qdda.dart';
+import '../meter/meter_link.dart';
+import '../meter/meter_discovery.dart';
+import '../meter/model/model.dart';
 import 'history.dart';
 
 export 'history.dart';

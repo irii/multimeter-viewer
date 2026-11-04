@@ -7,9 +7,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:multimeter_viewer/about/app_info.dart';
 import 'package:multimeter_viewer/app.dart';
 import 'package:multimeter_viewer/bloc/memory_bloc.dart';
-import 'package:multimeter_viewer/fluke/fluke_client.dart';
-import 'package:multimeter_viewer/fluke/fluke_memory_reader.dart';
-import 'package:multimeter_viewer/fluke/qdda.dart';
+import 'package:multimeter_viewer/meter/meter_memory.dart';
+import 'package:multimeter_viewer/meter/model/model.dart';
 import 'package:multimeter_viewer/recording/recording.dart';
 import 'package:multimeter_viewer/ui/about_page.dart';
 import 'package:multimeter_viewer/ui/licenses_page.dart';
@@ -109,13 +108,13 @@ void main() {
   blocTest<MemoryBloc, MemoryState>(
     'reports read errors',
     build: () {
-      memory.readError = const FlukeTimeoutException('qsls');
+      memory.readError = const MeterTimeoutException('qsls');
       return build();
     },
     act: (bloc) => bloc.add(const MemoryLoadRequested()),
     verify: (bloc) {
       expect(bloc.state.status, MemoryStatus.failure);
-      expect(bloc.state.error, const FlukeTimeoutException('qsls'));
+      expect(bloc.state.error, const MeterTimeoutException('qsls'));
     },
   );
 

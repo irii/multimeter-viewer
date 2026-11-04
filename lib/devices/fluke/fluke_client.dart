@@ -2,83 +2,26 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:equatable/equatable.dart';
-
 import 'dart:typed_data';
 
+import '../../adapters/serial_channel.dart';
+import '../../meter/meter_link.dart';
+import '../../meter/meter_memory.dart';
+import '../../meter/model/meter_display.dart';
+import '../../meter/model/meter_exceptions.dart';
+import '../../meter/model/meter_identity.dart';
+import '../../meter/model/meter_properties.dart';
 import 'fluke_memory_reader.dart';
-import 'meter_properties.dart';
 import 'qdda.dart';
 
-export 'fluke_memory_reader.dart' show MeterMemory;
-export 'meter_properties.dart';
-
-/// Byte transport to the meter (the FTDI cable in production, fakes in
-/// tests).
-abstract interface class SerialChannel {
-  Future<void> write(List<int> data);
-
-  /// Returns whatever bytes have arrived; may be empty.
-  Future<List<int>> read();
-
-  /// Fires when the underlying device is unplugged.
-  Stream<void> get onRemoved;
-
-  Future<void> close();
-}
-
-/// What the UI layer needs from a connected meter.
-abstract interface class MeterLink {
-  Future<MeterIdentity> identify();
-
-  Future<QddaResponse> queryDisplay();
-
-  /// Company, operator, site and contact stored in the meter.
-  Future<MeterProperties> readProperties();
-
-  /// Stores [value] as the property [name] (one of [MeterProperties.names]);
-  /// an empty [value] clears it.
-  Future<void> writeProperty(String name, String value);
-
-  Stream<void> get onRemoved;
-
-  /// Access to recordings and measurements saved in the meter.
-  MeterMemory get memory;
-
-  Future<void> close();
-}
-
-/// Error reported for a meter [command]. The UI turns these into localized
-/// text; [toString] is a technical English description for logs.
-sealed class FlukeException extends Equatable implements Exception {
-  const FlukeException(this.command);
-
-  final String command;
-}
-
-final class FlukeAckException extends FlukeException {
-  const FlukeAckException(super.command, this.ack);
-
-  final String ack;
-
-  @override
-  List<Object?> get props => [command, ack];
-
-  @override
-  String toString() => '$command: CMD_ACK $ack';
-}
-
-/// The meter did not answer [command] in time.
-final class FlukeTimeoutException extends FlukeException {
-  const FlukeTimeoutException(super.command);
-
-  @override
-  List<Object?> get props => [command];
-
-  @override
-  String toString() => '$command: no response from the meter';
-}
+/// The command was refused with [ack].
+MeterCommandRejected ackException(String command, String ack) =>
+    MeterCommandRejected(command, switch (ack) {
+      '1' => MeterCommandError.syntax,
+      '2' => MeterCommandError.execution,
+      '5' => MeterCommandError.noData,
+      _ => MeterCommandError.other,
+    }, ack);
 
 const int _cr = 0x0D;
 const int _lf = 0x0A;
@@ -107,11 +50,11 @@ class FlukeClient implements MeterLink {
 
   @override
   Future<MeterIdentity> identify({Duration timeout = defaultTimeout}) async =>
-      MeterIdentity.parse(await command('ID', timeout: timeout));
+      parseIdentity(await command('ID', timeout: timeout));
 
   @override
-  Future<QddaResponse> queryDisplay() async =>
-      QddaResponse.parse(await command('QDDA'));
+  Future<MeterDisplay> queryDisplay() async =>
+      parseDisplay(await command('QDDA'));
 
   /// Reads each property on its own: a meter that does not know one
   /// answers it with an error, the others are still read. Stops at the
@@ -122,9 +65,9 @@ class FlukeClient implements MeterLink {
     for (final name in MeterProperties.names) {
       try {
         values[name] = splitFields(await command('qmpq $name')).first;
-      } on FlukeAckException {
+      } on MeterCommandRejected {
         values[name] = null;
-      } on FlukeTimeoutException {
+      } on MeterTimeoutException {
         break;
       }
     }
@@ -173,7 +116,7 @@ class FlukeClient implements MeterLink {
     await _fill(cmd, deadline, () => _buffer.length >= 2);
     if (_buffer[0] != 0x23 || _buffer[1] != 0x30) {
       final line = await _readLine(cmd, deadline);
-      throw FlukeParseException('$cmd: expected binary data, got "$line"');
+      throw MeterParseException('$cmd: expected binary data, got "$line"');
     }
     _buffer.removeRange(0, 2);
 
@@ -206,7 +149,7 @@ class FlukeClient implements MeterLink {
       final ack = await _readLine(cmd, deadline);
       if (ack == '0') return deadline;
       if (ack != _busyAck || attempt >= _busyRetries) {
-        throw FlukeAckException(cmd, ack);
+        throw ackException(cmd, ack);
       }
       await Future<void>.delayed(const Duration(milliseconds: 50));
     }
@@ -221,7 +164,7 @@ class FlukeClient implements MeterLink {
     while (!done()) {
       if (DateTime.now().isAfter(deadline)) {
         _buffer.clear();
-        throw FlukeTimeoutException(cmd);
+        throw MeterTimeoutException(cmd);
       }
       final chunk = await _channel.read();
       if (chunk.isEmpty) {

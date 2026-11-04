@@ -6,7 +6,7 @@
 library;
 
 import '../about/app_info.dart';
-import '../fluke/qdda.dart';
+import '../meter/model/model.dart';
 import 'recording.dart';
 
 enum RecordingFormatError {

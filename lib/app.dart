@@ -5,12 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'about/app_info.dart';
-import 'ble/ble_meter_discovery.dart';
 import 'bloc/meter_bloc.dart';
 import 'bloc/time_base_cubit.dart';
 import 'compact/compact_mode_cubit.dart';
 import 'compact/compact_window.dart';
-import 'fluke/meter_discovery.dart';
+import 'adapters/usb/usb_adapter.dart';
+import 'devices/devices.dart';
+import 'meter/meter_discovery.dart';
 import 'l10n/l10n.dart';
 import 'platform/app_menu.dart';
 import 'platform/window_chrome.dart';
@@ -21,7 +22,6 @@ import 'router.dart';
 import 'ui/settings_dialog.dart';
 import 'settings/settings_cubit.dart';
 import 'settings/settings_store.dart';
-import 'usb/usb_meter_discovery.dart';
 
 class MultimeterViewerApp extends StatefulWidget {
   const MultimeterViewerApp({
@@ -33,7 +33,7 @@ class MultimeterViewerApp extends StatefulWidget {
     this.initialSettings = const AppSettings(),
   });
 
-  /// Overrides the USB discovery/connection, e.g. in tests.
+  /// Overrides the discovery/connection, e.g. in tests.
   final MeterDiscovery? discovery;
 
   /// Overrides the file dialog for opening recordings, e.g. in tests.
@@ -54,18 +54,12 @@ class MultimeterViewerApp extends StatefulWidget {
 }
 
 class _MultimeterViewerAppState extends State<MultimeterViewerApp> {
-  /// Also used by the serial monitor; `null` when [widget.discovery]
-  /// replaces the real discovery.
-  late final UsbMeterDiscovery? _usbDiscovery = widget.discovery == null
-      ? UsbMeterDiscovery()
-      : null;
-  late final MeterDiscovery _discovery =
-      widget.discovery ??
-      CompositeMeterDiscovery({
-        MeterTransport.usb: _usbDiscovery!,
-        if (BleMeterDiscovery.supported)
-          MeterTransport.bluetooth: BleMeterDiscovery(),
-      });
+  /// `null` when [widget.discovery] replaces the real discovery.
+  late final _setup = widget.discovery == null ? createMeterDiscovery() : null;
+
+  /// Also used by the serial monitor.
+  late final UsbAdapter? _usbAdapter = _setup?.usb;
+  late final MeterDiscovery _discovery = widget.discovery ?? _setup!.discovery;
   late final MeterBloc _meterBloc = MeterBloc(connector: _discovery.connect);
   late final RecordingBloc _recordingBloc = RecordingBloc(
     meterStates: _meterBloc.stream,
@@ -145,7 +139,7 @@ class _MultimeterViewerAppState extends State<MultimeterViewerApp> {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: _discovery),
-        RepositoryProvider<UsbMeterDiscovery?>.value(value: _usbDiscovery),
+        RepositoryProvider<UsbAdapter?>.value(value: _usbAdapter),
       ],
       child: MultiBlocProvider(
         providers: [

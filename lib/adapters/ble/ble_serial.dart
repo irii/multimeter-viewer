@@ -3,30 +3,41 @@ import 'dart:typed_data';
 
 import 'package:universal_ble/universal_ble.dart';
 
-import '../fluke/fluke_client.dart';
+import '../serial_channel.dart';
 
-/// The Bluetooth IR adapter (`firmware/28x-ir-dongle`): an ESP32 that sends
-/// the bytes it receives over Bluetooth LE to the meter's IR port and
-/// notifies the bytes the meter answers. The meter protocol is the same as
-/// over the USB cable.
-abstract final class IrAdapterBle {
-  static const service = 'ca7c33cd-93df-40a9-83c7-4c9e4ee57a33';
+/// Bluetooth LE devices to offer: those with this GATT serial service.
+class BleFilter {
+  const BleFilter({
+    required this.service,
+    required this.write,
+    required this.notify,
+  });
 
-  /// App → meter (write).
-  static const toMeter = '077fee1f-2aa0-4b7a-8adb-8c1f7c51310b';
+  final String service;
 
-  /// Meter → app (notify).
-  static const fromMeter = '9612beb0-f6ef-41ee-9a61-d7d51add4703';
+  /// App → device.
+  final String write;
 
-  /// Advertised name prefix, followed by part of the adapter's address.
-  static const namePrefix = 'MMV-IR';
+  /// Device → app.
+  final String notify;
 }
 
-/// [SerialChannel] over the Bluetooth IR adapter.
+/// The filter whose service the device offers. Falls back to the first one,
+/// so a device reporting its UUIDs in another format still connects.
+BleFilter bleFilterFor(List<BleFilter> filters, Iterable<String> serviceUuids) {
+  final offered = {for (final uuid in serviceUuids) uuid.toLowerCase()};
+  return filters.firstWhere(
+    (filter) => offered.contains(filter.service.toLowerCase()),
+    orElse: () => filters.first,
+  );
+}
+
+/// [SerialChannel] over a Bluetooth LE serial service.
 class BleSerial implements SerialChannel {
-  BleSerial._(this.deviceId, this._maxWrite);
+  BleSerial._(this.deviceId, this._filter, this._maxWrite);
 
   final String deviceId;
+  final BleFilter _filter;
 
   /// Largest write the connection takes (MTU minus the ATT header).
   final int _maxWrite;
@@ -38,22 +49,27 @@ class BleSerial implements SerialChannel {
 
   static const _connectTimeout = Duration(seconds: 8);
 
-  /// Connects to the adapter [deviceId] and subscribes to the meter's
-  /// answers.
-  static Future<BleSerial> open(String deviceId) async {
+  /// Connects to the device [deviceId] and subscribes to its answers.
+  static Future<BleSerial> open(
+    String deviceId,
+    List<BleFilter> filters,
+  ) async {
     await UniversalBle.connect(deviceId, timeout: _connectTimeout);
     try {
-      await UniversalBle.discoverServices(deviceId);
+      final services = await UniversalBle.discoverServices(deviceId);
+      final filter = bleFilterFor(filters, [
+        for (final service in services) service.uuid,
+      ]);
       var mtu = 23;
       try {
         mtu = await UniversalBle.requestMtu(deviceId, 247);
       } catch (_) {
         // Keep the default; commands are short anyway.
       }
-      final serial = BleSerial._(deviceId, mtu - 3);
+      final serial = BleSerial._(deviceId, filter, mtu - 3);
       serial._valueSub = UniversalBle.characteristicValueStream(
         deviceId,
-        IrAdapterBle.fromMeter,
+        filter.notify,
       ).listen(serial._received.addAll);
       serial._connectionSub = UniversalBle.connectionStream(deviceId)
           .listen((connected) {
@@ -61,8 +77,8 @@ class BleSerial implements SerialChannel {
           });
       await UniversalBle.subscribeNotifications(
         deviceId,
-        IrAdapterBle.service,
-        IrAdapterBle.fromMeter,
+        filter.service,
+        filter.notify,
       );
       return serial;
     } catch (_) {
@@ -77,8 +93,8 @@ class BleSerial implements SerialChannel {
       final end = i + _maxWrite < data.length ? i + _maxWrite : data.length;
       await UniversalBle.write(
         deviceId,
-        IrAdapterBle.service,
-        IrAdapterBle.toMeter,
+        _filter.service,
+        _filter.write,
         Uint8List.fromList(data.sublist(i, end)),
       );
     }
