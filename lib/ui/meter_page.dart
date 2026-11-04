@@ -5,17 +5,18 @@ import 'package:go_router/go_router.dart';
 import '../bloc/meter_bloc.dart';
 import '../compact/compact_mode_cubit.dart';
 import '../l10n/l10n.dart';
+import '../meter/model/meter_capabilities.dart';
 import '../recording/recording_bloc.dart';
 import '../router.dart';
 import 'meter_properties_dialog.dart';
 import 'recording_dialog.dart';
 import 'recording_page.dart';
+import 'widgets/capability_panel.dart';
 import 'widgets/history_chart.dart';
 import 'widgets/meter_properties_card.dart';
 import 'widgets/primary_display.dart';
 import 'widgets/reading_card.dart';
 import 'widgets/recording_banner.dart';
-import 'widgets/status_chips.dart';
 import 'widgets/window_app_bar.dart';
 import 'widgets/bar_actions.dart';
 
@@ -67,11 +68,12 @@ class MeterPage extends StatelessWidget {
                         pinned: true,
                         onPressed: () => _enterCompact(context),
                       ),
-                    BarAction(
-                      icon: Icons.sd_storage_outlined,
-                      label: context.l10n.meterMemory,
-                      onPressed: () => context.push(Routes.memory),
-                    ),
+                    if (state.capabilities.hasFeature(MeterFeatures.memory))
+                      BarAction(
+                        icon: Icons.sd_storage_outlined,
+                        label: context.l10n.meterMemory,
+                        onPressed: () => context.push(Routes.memory),
+                      ),
                     BarAction(
                       icon: Icons.folder_open,
                       label: context.l10n.actionOpenRecording,
@@ -179,11 +181,17 @@ class _MeterBody extends StatelessWidget {
         ? null
         : MeterPropertiesCard(
             properties: properties,
-            onEdit: () => showMeterPropertiesDialog(
-              context,
-              context.read<MeterBloc>(),
-              properties,
-            ),
+            onEdit:
+                state.capabilities.hasFeature(
+                  MeterFeatures.properties,
+                  subFunction: MeterFeatures.write,
+                )
+                ? () => showMeterPropertiesDialog(
+                    context,
+                    context.read<MeterBloc>(),
+                    properties,
+                  )
+                : null,
           );
 
     final extrasWrap = Wrap(
@@ -192,8 +200,21 @@ class _MeterBody extends StatelessWidget {
       children: [for (final r in extras) ReadingCard(reading: r)],
     );
 
+    final capabilityPanel = CapabilityPanel(
+      capabilities: state.capabilities,
+      display: display,
+      onSet: (id, {subFunction, required active}) =>
+          context.read<MeterBloc>().add(
+            MeterCapabilitySetRequested(
+              id,
+              subFunction: subFunction,
+              active: active,
+            ),
+          ),
+    );
+
     final statusAndExtras = [
-      if (StatusChips.hasChips(display)) StatusChips(display: display),
+      capabilityPanel,
       if (extras.isNotEmpty) extrasWrap,
     ].separatedBy(const SizedBox(height: 12));
 
@@ -247,10 +268,8 @@ class _MeterBody extends StatelessWidget {
           children: [
             const RecordingBanner(),
             PrimaryDisplay(display: display),
-            if (StatusChips.hasChips(display)) ...[
-              const SizedBox(height: 12),
-              StatusChips(display: display),
-            ],
+            const SizedBox(height: 12),
+            capabilityPanel,
             if (extras.isNotEmpty) ...[const SizedBox(height: 12), extrasWrap],
             const SizedBox(height: 12),
             HistoryChart(history: state.history, height: 360),

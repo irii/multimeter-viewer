@@ -68,6 +68,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get multimeter => 'Multimeter';
 
   @override
+  String get measurementModes => 'Measurement modes';
+
+  @override
+  String get capabilityNotSettable => 'Can only be changed on the meter';
+
+  @override
   String get noMeterFoundHint =>
       'Is the meter switched on and the IR adapter seated correctly? Searching continues automatically.';
 

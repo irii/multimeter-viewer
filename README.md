@@ -59,14 +59,15 @@ The code is split into three layers:
   pass bytes. Each device class attaches the filters of the devices it wants
   with `attachFilter` and detaches them with `detachFilter`.
 - `lib/meter/`: the data the app works with and the interfaces it uses
-  (`MeterDiscovery`, `MeterProtocol`, `MeterLink`).
+  (`MeterDiscovery`, `MeterProtocol`, `MeterLink`, `MeterCapabilities`).
 - `lib/devices/`: one folder per kind of device. A device class takes the
   adapters as parameters and is the discovery for that device, e.g.
   `FlukeDevice(usb: usb, ble: ble)`.
 
 For another meter, add a folder in `lib/devices/`: implement `MeterProtocol`
-and `MeterLink`, convert the answers to the types in `lib/meter/model/`, write
-a device class like `lib/devices/fluke/fluke_device.dart` and add it in
+and `MeterLink`, declare what the meter can do as `MeterCapabilities` (measurement
+modes and features, each with subfunctions and whether the app can set them),
+convert the answers to the types in `lib/meter/model/`, write a device class like `lib/devices/fluke/fluke_device.dart` and add it in
 `lib/devices/devices.dart`.
 
 ## Disclaimer

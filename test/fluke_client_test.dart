@@ -39,6 +39,18 @@ void main() {
       });
     }
 
+    test(
+      'setting a capability is refused without touching the meter',
+      () async {
+        final channel = FakeChannel();
+        await expectLater(
+          FlukeClient(channel).setCapability('V_AC', active: true),
+          throwsUnsupportedError,
+        );
+        expect(channel.written, isEmpty);
+      },
+    );
+
     test('reads the stored properties, skipping unknown ones', () async {
       final channel = FakeChannel()
         ..respond("0\r'ACME Elektro'\r")

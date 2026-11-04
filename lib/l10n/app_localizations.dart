@@ -212,6 +212,18 @@ abstract class AppLocalizations {
   /// **'Multimeter'**
   String get multimeter;
 
+  /// No description provided for @measurementModes.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement modes'**
+  String get measurementModes;
+
+  /// No description provided for @capabilityNotSettable.
+  ///
+  /// In en, this message translates to:
+  /// **'Can only be changed on the meter'**
+  String get capabilityNotSettable;
+
   /// No description provided for @noMeterFoundHint.
   ///
   /// In en, this message translates to:

@@ -2,6 +2,7 @@
 library;
 
 export 'memory_items.dart';
+export 'meter_capabilities.dart';
 export 'meter_display.dart';
 export 'meter_exceptions.dart';
 export 'meter_identity.dart';

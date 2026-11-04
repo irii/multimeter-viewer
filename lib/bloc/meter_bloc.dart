@@ -27,6 +27,7 @@ class MeterBloc extends Bloc<MeterEvent, MeterState> {
        super(const MeterState()) {
     on<MeterConnectRequested>(_onConnect, transformer: droppable());
     on<MeterDisconnectRequested>(_onDisconnect);
+    on<MeterCapabilitySetRequested>(_onCapabilitySet);
     on<_MeterPolled>(_onPolled);
     on<_MeterPollFailed>(_onPollFailed);
     on<_MeterDeviceRemoved>(_onDeviceRemoved);
@@ -58,7 +59,14 @@ class MeterBloc extends Bloc<MeterEvent, MeterState> {
     try {
       link = await connector(event.candidate);
       final identity = await link.identify();
-      final properties = await _readProperties(link);
+      final capabilities = link.capabilities(identity);
+      final properties =
+          capabilities.hasFeature(
+            MeterFeatures.properties,
+            subFunction: MeterFeatures.read,
+          )
+          ? await _readProperties(link)
+          : null;
       _link = link;
       _consecutiveFailures = 0;
       _removedSub = link.onRemoved.listen(
@@ -68,6 +76,7 @@ class MeterBloc extends Bloc<MeterEvent, MeterState> {
         MeterState(
           status: MeterStatus.connected,
           identity: identity,
+          capabilities: capabilities,
           properties: properties,
         ),
       );
@@ -163,6 +172,29 @@ class MeterBloc extends Bloc<MeterEvent, MeterState> {
       );
     } else {
       emit(state.copyWith(warning: () => event.error));
+    }
+  }
+
+  Future<void> _onCapabilitySet(
+    MeterCapabilitySetRequested event,
+    Emitter<MeterState> emit,
+  ) async {
+    final link = _link;
+    if (link == null ||
+        !state.capabilities.isSettable(
+          event.id,
+          subFunction: event.subFunction,
+        )) {
+      return;
+    }
+    try {
+      await link.setCapability(
+        event.id,
+        subFunction: event.subFunction,
+        active: event.active,
+      );
+    } catch (e) {
+      if (identical(_link, link)) emit(state.copyWith(warning: () => e));
     }
   }
 

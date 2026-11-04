@@ -7,10 +7,12 @@ import 'dart:typed_data';
 import '../../adapters/serial_channel.dart';
 import '../../meter/meter_link.dart';
 import '../../meter/meter_memory.dart';
+import '../../meter/model/meter_capabilities.dart';
 import '../../meter/model/meter_display.dart';
 import '../../meter/model/meter_exceptions.dart';
 import '../../meter/model/meter_identity.dart';
 import '../../meter/model/meter_properties.dart';
+import 'fluke_capabilities.dart';
 import 'fluke_memory_reader.dart';
 import 'qdda.dart';
 
@@ -55,6 +57,17 @@ class FlukeClient implements MeterLink {
   @override
   Future<MeterDisplay> queryDisplay() async =>
       parseDisplay(await command('QDDA'));
+
+  @override
+  MeterCapabilities capabilities(MeterIdentity identity) =>
+      flukeCapabilities(identity);
+
+  @override
+  Future<void> setCapability(
+    String id, {
+    String? subFunction,
+    required bool active,
+  }) async => throw UnsupportedError('Setting $id is not supported');
 
   /// Reads each property on its own: a meter that does not know one
   /// answers it with an error, the others are still read. Stops at the

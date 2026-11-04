@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:multimeter_viewer/adapters/serial_channel.dart';
+import 'package:multimeter_viewer/devices/fluke/fluke_capabilities.dart';
 import 'package:multimeter_viewer/devices/fluke/qdda.dart';
 import 'package:multimeter_viewer/compact/compact_window.dart';
 import 'package:multimeter_viewer/meter/meter_link.dart';
@@ -58,6 +59,7 @@ class FakeLink implements MeterLink {
     this.responses = const [],
     this.meterIdentity = identity,
     this.properties = const MeterProperties(),
+    this.meterCapabilities,
   });
 
   final List<Object> responses;
@@ -81,6 +83,29 @@ class FakeLink implements MeterLink {
       for (final n in MeterProperties.names)
         n: n == name ? value : properties[n],
     });
+  }
+
+  /// Capabilities this fake declares; those of a Fluke if `null`.
+  final MeterCapabilities? meterCapabilities;
+
+  @override
+  MeterCapabilities capabilities(MeterIdentity identity) =>
+      meterCapabilities ?? flukeCapabilities(identity);
+
+  /// Error [setCapability] throws.
+  Object? setError;
+
+  /// Capabilities this fake was asked to switch, as `id/sub=active`.
+  final set = <String>[];
+
+  @override
+  Future<void> setCapability(
+    String id, {
+    String? subFunction,
+    required bool active,
+  }) async {
+    if (setError != null) throw setError!;
+    set.add('$id/$subFunction=$active');
   }
 
   final removed = StreamController<void>.broadcast();

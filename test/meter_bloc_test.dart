@@ -3,6 +3,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:multimeter_viewer/bloc/meter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:multimeter_viewer/devices/fluke/fluke_capabilities.dart';
+
 import 'fakes.dart';
 
 void main() {
@@ -31,10 +33,11 @@ void main() {
     // Every poll with a new meter timestamp emits; check the start order.
     expect: () => containsAllInOrder(<Object>[
       const MeterState(status: MeterStatus.connecting),
-      const MeterState(
+      MeterState(
         status: MeterStatus.connected,
         identity: FakeLink.identity,
-        properties: MeterProperties(),
+        capabilities: flukeCapabilities(FakeLink.identity),
+        properties: const MeterProperties(),
       ),
       isA<MeterState>().having((s) => s.display, 'display', isNotNull),
     ]),
@@ -154,6 +157,109 @@ void main() {
         bloc.state.failure,
         const MeterFailure(MeterFailureKind.cableRemoved),
       );
+    },
+  );
+
+  group('setting a capability', () {
+    const capabilities = MeterCapabilities(
+      measurements: [
+        MeterCapability(
+          'V_DC',
+          settable: true,
+          subFunctions: [
+            MeterSubFunction('HOLD', MeterSubFunctionKind.mode, settable: true),
+            MeterSubFunction('RECORD', MeterSubFunctionKind.mode),
+          ],
+        ),
+        MeterCapability('OHMS'),
+      ],
+    );
+
+    MeterBloc settable() {
+      link = FakeLink(meterCapabilities: capabilities);
+      return MeterBloc(
+        connector: (_) async => link,
+        pollInterval: const Duration(hours: 1),
+      );
+    }
+
+    Future<void> connect(MeterBloc bloc) async {
+      bloc.add(const MeterConnectRequested(fakeCandidate));
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    }
+
+    blocTest<MeterBloc, MeterState>(
+      'reaches the meter when settable',
+      build: settable,
+      act: (bloc) async {
+        await connect(bloc);
+        bloc
+          ..add(const MeterCapabilitySetRequested('V_DC', active: true))
+          ..add(
+            const MeterCapabilitySetRequested(
+              'V_DC',
+              subFunction: 'HOLD',
+              active: false,
+            ),
+          );
+      },
+      wait: const Duration(milliseconds: 20),
+      verify: (_) => expect(link.set, ['V_DC/null=true', 'V_DC/HOLD=false']),
+    );
+
+    blocTest<MeterBloc, MeterState>(
+      'is ignored when not settable or unknown',
+      build: settable,
+      act: (bloc) async {
+        await connect(bloc);
+        bloc
+          ..add(const MeterCapabilitySetRequested('OHMS', active: true))
+          ..add(
+            const MeterCapabilitySetRequested(
+              'V_DC',
+              subFunction: 'RECORD',
+              active: true,
+            ),
+          )
+          ..add(const MeterCapabilitySetRequested('NOPE', active: true));
+      },
+      wait: const Duration(milliseconds: 20),
+      verify: (_) => expect(link.set, isEmpty),
+    );
+
+    blocTest<MeterBloc, MeterState>(
+      'reports a failure as a warning',
+      build: () {
+        final bloc = settable();
+        link.setError = StateError('refused');
+        return bloc;
+      },
+      act: (bloc) async {
+        await connect(bloc);
+        bloc.add(const MeterCapabilitySetRequested('V_DC', active: true));
+      },
+      wait: const Duration(milliseconds: 20),
+      verify: (bloc) {
+        expect(bloc.state.status, MeterStatus.connected);
+        expect(bloc.state.warning, isA<StateError>());
+      },
+    );
+  });
+
+  blocTest<MeterBloc, MeterState>(
+    'does not read properties the meter does not offer',
+    build: () {
+      link = FakeLink(meterCapabilities: const MeterCapabilities());
+      return MeterBloc(
+        connector: (_) async => link,
+        pollInterval: const Duration(hours: 1),
+      );
+    },
+    act: (bloc) => bloc.add(const MeterConnectRequested(fakeCandidate)),
+    wait: const Duration(milliseconds: 20),
+    verify: (bloc) {
+      expect(bloc.state.status, MeterStatus.connected);
+      expect(bloc.state.properties, isNull);
     },
   );
 }

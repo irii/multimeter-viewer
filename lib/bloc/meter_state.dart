@@ -30,6 +30,7 @@ final class MeterState extends Equatable {
   const MeterState({
     this.status = MeterStatus.disconnected,
     this.identity,
+    this.capabilities = const MeterCapabilities(),
     this.properties,
     this.display,
     this.receivedAt,
@@ -41,6 +42,9 @@ final class MeterState extends Equatable {
 
   final MeterStatus status;
   final MeterIdentity? identity;
+
+  /// What the connected meter can do.
+  final MeterCapabilities capabilities;
 
   /// Owner texts stored in the meter; `null` if they could not be read.
   final MeterProperties? properties;
@@ -75,6 +79,7 @@ final class MeterState extends Equatable {
   }) => MeterState(
     status: status ?? this.status,
     identity: identity ?? this.identity,
+    capabilities: capabilities,
     properties: properties != null ? properties() : this.properties,
     display: display ?? this.display,
     receivedAt: receivedAt ?? this.receivedAt,
@@ -87,6 +92,7 @@ final class MeterState extends Equatable {
   List<Object?> get props => [
     status,
     identity,
+    capabilities,
     properties,
     display,
     history,

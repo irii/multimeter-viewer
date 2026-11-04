@@ -1,4 +1,5 @@
 import 'meter_memory.dart';
+import 'model/meter_capabilities.dart';
 import 'model/meter_display.dart';
 import 'model/meter_identity.dart';
 import 'model/meter_properties.dart';
@@ -8,6 +9,17 @@ abstract interface class MeterLink {
   Future<MeterIdentity> identify();
 
   Future<MeterDisplay> queryDisplay();
+
+  /// What the meter of [identity] can do.
+  MeterCapabilities capabilities(MeterIdentity identity);
+
+  /// Switches the capability [id] or its [subFunction]. Only for what
+  /// [capabilities] declares as settable.
+  Future<void> setCapability(
+    String id, {
+    String? subFunction,
+    required bool active,
+  });
 
   /// Company, operator, site and contact stored in the meter.
   Future<MeterProperties> readProperties();

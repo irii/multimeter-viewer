@@ -19,6 +19,8 @@
   "noMeterFound": "No compatible devices found",
   "supportedDevices": "Supported devices",
   "multimeter": "Multimeter",
+  "measurementModes": "Measurement modes",
+  "capabilityNotSettable": "Can only be changed on the meter",
   "noMeterFoundHint": "Is the meter switched on and the IR adapter seated correctly? Searching continues automatically.",
   "searchingMeters": "Searching for meters …",
   "cablesWithoutMeter": "Adapters without meter",

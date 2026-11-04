@@ -68,6 +68,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get multimeter => 'Multimeter';
 
   @override
+  String get measurementModes => 'Messmodi';
+
+  @override
+  String get capabilityNotSettable => 'Nur am Gerät umschaltbar';
+
+  @override
   String get noMeterFoundHint =>
       'Ist das Messgerät eingeschaltet und sitzt der IR-Adapter richtig? Es wird automatisch weiter gesucht.';
 
