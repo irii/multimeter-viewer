@@ -6,9 +6,18 @@ void main() {
     measurements: [
       MeterCapability(
         'V_DC',
-        subFunctions: [
-          MeterSubFunction('HOLD', MeterSubFunctionKind.mode, settable: true),
-          MeterSubFunction('HERTZ', MeterSubFunctionKind.secondary),
+        subCapabilities: [
+          MeterSubCapability(
+            'HOLD',
+            MeterControl.toggle,
+            source: MeterStateSource.mode,
+            settable: true,
+          ),
+          MeterSubCapability(
+            'HERTZ',
+            MeterControl.toggle,
+            source: MeterStateSource.secondaryFunction,
+          ),
         ],
       ),
       MeterCapability('OHMS', settable: true),
@@ -16,8 +25,8 @@ void main() {
     features: [
       MeterCapability(
         MeterFeatures.properties,
-        subFunctions: [
-          MeterSubFunction(MeterFeatures.read, MeterSubFunctionKind.action),
+        subCapabilities: [
+          MeterSubCapability(MeterFeatures.read, MeterControl.none),
         ],
       ),
     ],
@@ -38,14 +47,14 @@ void main() {
     expect(
       capabilities.hasFeature(
         MeterFeatures.properties,
-        subFunction: MeterFeatures.read,
+        sub: MeterFeatures.read,
       ),
       isTrue,
     );
     expect(
       capabilities.hasFeature(
         MeterFeatures.properties,
-        subFunction: MeterFeatures.write,
+        sub: MeterFeatures.write,
       ),
       isFalse,
     );
@@ -56,9 +65,9 @@ void main() {
   test('capability and subfunction have their own flag', () {
     expect(capabilities.isSettable('OHMS'), isTrue);
     expect(capabilities.isSettable('V_DC'), isFalse);
-    expect(capabilities.isSettable('V_DC', subFunction: 'HOLD'), isTrue);
-    expect(capabilities.isSettable('V_DC', subFunction: 'HERTZ'), isFalse);
-    expect(capabilities.isSettable('V_DC', subFunction: 'NOPE'), isFalse);
+    expect(capabilities.isSettable('V_DC', sub: 'HOLD'), isTrue);
+    expect(capabilities.isSettable('V_DC', sub: 'HERTZ'), isFalse);
+    expect(capabilities.isSettable('V_DC', sub: 'NOPE'), isFalse);
     expect(capabilities.isSettable('NOPE'), isFalse);
   });
 }

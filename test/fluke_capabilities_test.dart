@@ -25,16 +25,20 @@ void main() {
     expect(flukeCapabilities(_unknown), full);
   });
 
+  test('the backlight is a button', () {
+    expect(
+      full.feature('backlight')?.sub('press'),
+      const MeterSubCapability('press', MeterControl.button, settable: true),
+    );
+  });
+
   test('offers memory and properties', () {
     expect(
-      full.hasFeature(MeterFeatures.memory, subFunction: MeterFeatures.read),
+      full.hasFeature(MeterFeatures.memory, sub: MeterFeatures.read),
       isTrue,
     );
     expect(
-      full.hasFeature(
-        MeterFeatures.properties,
-        subFunction: MeterFeatures.write,
-      ),
+      full.hasFeature(MeterFeatures.properties, sub: MeterFeatures.write),
       isTrue,
     );
   });
@@ -42,11 +46,10 @@ void main() {
   test('only the backlight can be set', () {
     for (final capability in [...full.measurements, ...full.features]) {
       expect(capability.settable, isFalse, reason: capability.id);
-      for (final sub in capability.subFunctions) {
+      for (final sub in capability.subCapabilities) {
         expect(
           sub.settable,
-          capability.id == MeterFeatures.backlight &&
-              sub.id == MeterFeatures.press,
+          capability.id == 'backlight' && sub.id == 'press',
           reason: '${capability.id}/${sub.id}',
         );
       }
@@ -57,13 +60,13 @@ void main() {
     final l10n = lookupAppLocalizations(const Locale('en'));
     for (final measurement in full.measurements) {
       expect(l10n.primaryFunction(measurement.id), isNotEmpty);
-      expect(measurement.subFunctions, isNotEmpty, reason: measurement.id);
-      for (final sub in measurement.subFunctions) {
-        final label = switch (sub.kind) {
-          MeterSubFunctionKind.secondary => l10n.secondaryFunction(sub.id),
-          _ => l10n.mode(sub.id),
-        };
-        expect(label, isNotNull, reason: sub.id);
+      expect(measurement.subCapabilities, isNotEmpty, reason: measurement.id);
+      for (final sub in measurement.subCapabilities) {
+        expect(sub.control, MeterControl.toggle, reason: sub.id);
+        expect(sub.source, isNot(MeterStateSource.none), reason: sub.id);
+        if (sub.source == MeterStateSource.secondaryFunction) {
+          expect(l10n.secondaryFunction(sub.id), isNotNull, reason: sub.id);
+        }
       }
     }
   });

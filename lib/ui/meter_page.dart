@@ -68,21 +68,11 @@ class MeterPage extends StatelessWidget {
                         pinned: true,
                         onPressed: () => _enterCompact(context),
                       ),
-                    if (state.capabilities.isSettable(
-                      MeterFeatures.backlight,
-                      subFunction: MeterFeatures.press,
-                    ))
-                      BarAction(
-                        icon: Icons.light_mode_outlined,
-                        label: context.l10n.actionBacklight,
-                        onPressed: () => context.read<MeterBloc>().add(
-                          const MeterCapabilitySetRequested(
-                            MeterFeatures.backlight,
-                            subFunction: MeterFeatures.press,
-                            active: true,
-                          ),
-                        ),
-                      ),
+                    ...capabilityActions(
+                      context,
+                      state.capabilities,
+                      onSet: _setter(context),
+                    ),
                     if (state.capabilities.hasFeature(MeterFeatures.memory))
                       BarAction(
                         icon: Icons.sd_storage_outlined,
@@ -132,6 +122,11 @@ class MeterPage extends StatelessWidget {
     );
   }
 }
+
+CapabilitySetter _setter(BuildContext context) =>
+    (id, {sub, required active}) => context.read<MeterBloc>().add(
+      MeterCapabilitySetRequested(id, sub: sub, active: active),
+    );
 
 Future<void> _enterCompact(BuildContext context) async {
   final router = GoRouter.of(context);
@@ -199,7 +194,7 @@ class _MeterBody extends StatelessWidget {
             onEdit:
                 state.capabilities.hasFeature(
                   MeterFeatures.properties,
-                  subFunction: MeterFeatures.write,
+                  sub: MeterFeatures.write,
                 )
                 ? () => showMeterPropertiesDialog(
                     context,
@@ -218,14 +213,7 @@ class _MeterBody extends StatelessWidget {
     final capabilityPanel = CapabilityPanel(
       capabilities: state.capabilities,
       display: display,
-      onSet: (id, {subFunction, required active}) =>
-          context.read<MeterBloc>().add(
-            MeterCapabilitySetRequested(
-              id,
-              subFunction: subFunction,
-              active: active,
-            ),
-          ),
+      onSet: _setter(context),
     );
 
     final statusAndExtras = [

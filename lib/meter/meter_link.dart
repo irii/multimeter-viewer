@@ -13,13 +13,9 @@ abstract interface class MeterLink {
   /// What the meter of [identity] can do.
   MeterCapabilities capabilities(MeterIdentity identity);
 
-  /// Switches the capability [id] or its [subFunction]. Only for what
-  /// [capabilities] declares as settable.
-  Future<void> setCapability(
-    String id, {
-    String? subFunction,
-    required bool active,
-  });
+  /// Switches the capability [id] or presses or switches its [sub]. Only for
+  /// what [capabilities] declares as settable.
+  Future<void> setCapability(String id, {String? sub, required bool active});
 
   /// Company, operator, site and contact stored in the meter.
   Future<MeterProperties> readProperties();

@@ -1,29 +1,60 @@
 import 'package:equatable/equatable.dart';
 
-/// How a [MeterSubFunction] relates to the meter's display.
-enum MeterSubFunctionKind {
+import 'meter_display.dart';
+
+/// How the app shows a [MeterSubCapability].
+enum MeterControl {
+  /// On or off; can be switched when settable.
+  toggle,
+
+  /// An action without a state; can be pressed when settable.
+  button,
+
+  /// Shown only while active, never switchable.
+  label,
+
+  /// Not shown as a control; used by the app's own pages (memory, meter
+  /// properties).
+  none,
+}
+
+/// Where the on/off state of a [MeterSubCapability] comes from.
+enum MeterStateSource {
+  /// No state, e.g. a button.
+  none,
+
   /// Active while it is [MeterDisplay.secondaryFunction].
-  secondary,
+  secondaryFunction,
 
   /// Active while it is in [MeterDisplay.modes].
   mode,
-
-  /// Something a feature offers, without an on/off state.
-  action,
 }
 
-/// A function within a [MeterCapability], e.g. `HERTZ` or `HOLD`.
-class MeterSubFunction extends Equatable {
-  const MeterSubFunction(this.id, this.kind, {this.settable = false});
+/// A part of a [MeterCapability], e.g. `HERTZ`, `HOLD` or pressing the
+/// backlight button.
+class MeterSubCapability extends Equatable {
+  const MeterSubCapability(
+    this.id,
+    this.control, {
+    this.source = MeterStateSource.none,
+    this.settable = false,
+  });
 
   final String id;
-  final MeterSubFunctionKind kind;
+  final MeterControl control;
+  final MeterStateSource source;
 
-  /// Whether the app can switch it on the meter.
+  /// Whether the app can switch or press it on the meter.
   final bool settable;
 
+  bool isActive(MeterDisplay display) => switch (source) {
+    MeterStateSource.none => false,
+    MeterStateSource.secondaryFunction => display.secondaryFunction == id,
+    MeterStateSource.mode => display.modes.contains(id),
+  };
+
   @override
-  List<Object?> get props => [id, kind, settable];
+  List<Object?> get props => [id, control, source, settable];
 }
 
 /// A measurement mode or a feature of a meter.
@@ -31,38 +62,34 @@ class MeterCapability extends Equatable {
   const MeterCapability(
     this.id, {
     this.settable = false,
-    this.subFunctions = const [],
+    this.subCapabilities = const [],
   });
 
   final String id;
 
   /// Whether the app can switch it on the meter.
   final bool settable;
-  final List<MeterSubFunction> subFunctions;
+  final List<MeterSubCapability> subCapabilities;
 
-  MeterSubFunction? subFunction(String id) {
-    for (final sub in subFunctions) {
+  MeterSubCapability? sub(String id) {
+    for (final sub in subCapabilities) {
       if (sub.id == id) return sub;
     }
     return null;
   }
 
   @override
-  List<Object?> get props => [id, settable, subFunctions];
+  List<Object?> get props => [id, settable, subCapabilities];
 }
 
-/// Features a meter may offer besides measuring.
+/// Features the app has its own pages for.
 abstract final class MeterFeatures {
-  /// Subfunction: [read].
+  /// Sub-capability: [read].
   static const memory = 'memory';
 
-  /// Subfunctions: [read], [write].
+  /// Sub-capabilities: [read], [write].
   static const properties = 'properties';
 
-  /// Subfunction: [press].
-  static const backlight = 'backlight';
-
-  static const press = 'press';
   static const read = 'read';
   static const write = 'write';
 }
@@ -77,24 +104,25 @@ class MeterCapabilities extends Equatable {
   /// Each ID is a possible [MeterDisplay.primaryFunction].
   final List<MeterCapability> measurements;
 
-  /// IDs from [MeterFeatures].
+  /// Everything besides measuring, e.g. [MeterFeatures] or a backlight.
   final List<MeterCapability> features;
 
   MeterCapability? measurement(String id) => _find(measurements, id);
 
-  /// Whether the meter offers the feature [id] and, if given, its
-  /// [subFunction].
-  bool hasFeature(String id, {String? subFunction}) {
-    final feature = _find(features, id);
+  MeterCapability? feature(String id) => _find(features, id);
+
+  /// Whether the meter offers the feature [id] and, if given, its [sub].
+  bool hasFeature(String id, {String? sub}) {
+    final feature = this.feature(id);
     if (feature == null) return false;
-    return subFunction == null || feature.subFunction(subFunction) != null;
+    return sub == null || feature.sub(sub) != null;
   }
 
-  /// Whether the app can switch the capability [id] or its [subFunction].
-  bool isSettable(String id, {String? subFunction}) {
-    final capability = _find(measurements, id) ?? _find(features, id);
-    if (subFunction == null) return capability?.settable ?? false;
-    return capability?.subFunction(subFunction)?.settable ?? false;
+  /// Whether the app can switch the capability [id] or its [sub].
+  bool isSettable(String id, {String? sub}) {
+    final capability = measurement(id) ?? feature(id);
+    if (sub == null) return capability?.settable ?? false;
+    return capability?.sub(sub)?.settable ?? false;
   }
 
   static MeterCapability? _find(List<MeterCapability> list, String id) {

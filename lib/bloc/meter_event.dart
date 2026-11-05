@@ -22,21 +22,18 @@ final class MeterDisconnectRequested extends MeterEvent {
   const MeterDisconnectRequested();
 }
 
-/// Switches the capability [id] or its [subFunction] on the meter; ignored
+/// Switches the capability [id] or presses or switches its [sub] on the
+/// meter; ignored
 /// unless the meter declares it as settable.
 final class MeterCapabilitySetRequested extends MeterEvent {
-  const MeterCapabilitySetRequested(
-    this.id, {
-    this.subFunction,
-    required this.active,
-  });
+  const MeterCapabilitySetRequested(this.id, {this.sub, required this.active});
 
   final String id;
-  final String? subFunction;
+  final String? sub;
   final bool active;
 
   @override
-  List<Object?> get props => [id, subFunction, active];
+  List<Object?> get props => [id, sub, active];
 }
 
 final class _MeterPolled extends MeterEvent {

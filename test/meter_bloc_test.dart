@@ -166,9 +166,18 @@ void main() {
         MeterCapability(
           'V_DC',
           settable: true,
-          subFunctions: [
-            MeterSubFunction('HOLD', MeterSubFunctionKind.mode, settable: true),
-            MeterSubFunction('RECORD', MeterSubFunctionKind.mode),
+          subCapabilities: [
+            MeterSubCapability(
+              'HOLD',
+              MeterControl.toggle,
+              source: MeterStateSource.mode,
+              settable: true,
+            ),
+            MeterSubCapability(
+              'RECORD',
+              MeterControl.toggle,
+              source: MeterStateSource.mode,
+            ),
           ],
         ),
         MeterCapability('OHMS'),
@@ -198,7 +207,7 @@ void main() {
           ..add(
             const MeterCapabilitySetRequested(
               'V_DC',
-              subFunction: 'HOLD',
+              sub: 'HOLD',
               active: false,
             ),
           );
@@ -217,7 +226,7 @@ void main() {
           ..add(
             const MeterCapabilitySetRequested(
               'V_DC',
-              subFunction: 'RECORD',
+              sub: 'RECORD',
               active: true,
             ),
           )

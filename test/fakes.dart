@@ -101,11 +101,11 @@ class FakeLink implements MeterLink {
   @override
   Future<void> setCapability(
     String id, {
-    String? subFunction,
+    String? sub,
     required bool active,
   }) async {
     if (setError != null) throw setError!;
-    set.add('$id/$subFunction=$active');
+    set.add('$id/$sub=$active');
   }
 
   final removed = StreamController<void>.broadcast();

@@ -65,10 +65,10 @@ class FlukeClient implements MeterLink {
   @override
   Future<void> setCapability(
     String id, {
-    String? subFunction,
+    String? sub,
     required bool active,
   }) async {
-    if (id == MeterFeatures.backlight && subFunction == MeterFeatures.press) {
+    if (id == 'backlight' && sub == 'press') {
       await command('PRESS BACKLIGHT', expectResponse: false);
       return;
     }

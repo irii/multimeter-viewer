@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 
+import '../meter/model/meter_capabilities.dart';
 import 'app_localizations.dart';
 
 /// Identifiers that read the same in every language (`V AC`, `Hold`, ...)
@@ -67,6 +68,18 @@ extension FlukeLabels on AppLocalizations {
     'REL_PERCENT' => 'Rel %',
     _ => _humanize(mode),
   };
+
+  /// Name of a sub-capability, e.g. `Hold` or `Backlight`.
+  String subCapability(String capability, MeterSubCapability sub) =>
+      switch (sub.source) {
+        MeterStateSource.secondaryFunction =>
+          secondaryFunction(sub.id) ?? sub.id,
+        MeterStateSource.mode => mode(sub.id),
+        MeterStateSource.none => switch ((capability, sub.id)) {
+          ('backlight', 'press') => actionBacklight,
+          _ => _humanize('$capability ${sub.id}'),
+        },
+      };
 
   /// Name of a reading attribute, or `null` for `NONE`.
   String? attribute(String attribute) => switch (attribute) {

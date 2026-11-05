@@ -63,7 +63,7 @@ class MeterBloc extends Bloc<MeterEvent, MeterState> {
       final properties =
           capabilities.hasFeature(
             MeterFeatures.properties,
-            subFunction: MeterFeatures.read,
+            sub: MeterFeatures.read,
           )
           ? await _readProperties(link)
           : null;
@@ -181,18 +181,11 @@ class MeterBloc extends Bloc<MeterEvent, MeterState> {
   ) async {
     final link = _link;
     if (link == null ||
-        !state.capabilities.isSettable(
-          event.id,
-          subFunction: event.subFunction,
-        )) {
+        !state.capabilities.isSettable(event.id, sub: event.sub)) {
       return;
     }
     try {
-      await link.setCapability(
-        event.id,
-        subFunction: event.subFunction,
-        active: event.active,
-      );
+      await link.setCapability(event.id, sub: event.sub, active: event.active);
     } catch (e) {
       if (identical(_link, link)) emit(state.copyWith(warning: () => e));
     }

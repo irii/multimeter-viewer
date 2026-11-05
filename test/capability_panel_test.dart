@@ -13,10 +13,23 @@ const _capabilities = MeterCapabilities(
   measurements: [
     MeterCapability(
       'MV_AC',
-      subFunctions: [
-        MeterSubFunction('PEAK_MIN_MAX', MeterSubFunctionKind.secondary),
-        MeterSubFunction('MIN_MAX_AVG', MeterSubFunctionKind.mode),
-        MeterSubFunction('HOLD', MeterSubFunctionKind.mode, settable: true),
+      subCapabilities: [
+        MeterSubCapability(
+          'PEAK_MIN_MAX',
+          MeterControl.toggle,
+          source: MeterStateSource.secondaryFunction,
+        ),
+        MeterSubCapability(
+          'MIN_MAX_AVG',
+          MeterControl.toggle,
+          source: MeterStateSource.mode,
+        ),
+        MeterSubCapability(
+          'HOLD',
+          MeterControl.toggle,
+          source: MeterStateSource.mode,
+          settable: true,
+        ),
       ],
     ),
     MeterCapability('OHMS', settable: true),
@@ -42,8 +55,8 @@ void main() {
           body: CapabilityPanel(
             capabilities: capabilities,
             display: parseDisplay(qdda),
-            onSet: (id, {subFunction, required active}) =>
-                calls.add('$id/$subFunction=$active'),
+            onSet: (id, {sub, required active}) =>
+                calls.add('$id/$sub=$active'),
           ),
         ),
       ),
@@ -93,12 +106,92 @@ void main() {
     expect(calls, ['OHMS/null=true']);
   });
 
-  testWidgets('shows active values the device did not declare', (tester) async {
+  testWidgets('shows active values the device did not declare as labels', (
+    tester,
+  ) async {
     await pump(tester, capabilities: const MeterCapabilities());
-    expect(chip(tester, 'Peak Min/Max').selected, isTrue);
-    expect(chip(tester, 'Min Max').selected, isTrue);
-    expect(chip(tester, 'Min Max').onSelected, isNull);
+    expect(find.widgetWithText(Chip, 'Peak Min/Max'), findsOneWidget);
+    expect(find.widgetWithText(Chip, 'Min Max'), findsOneWidget);
+    expect(find.byType(FilterChip), findsNothing);
     expect(find.text('mV AC'), findsOneWidget);
+  });
+
+  group('controls by type', () {
+    const features = MeterCapabilities(
+      features: [
+        MeterCapability(
+          'light',
+          subCapabilities: [
+            MeterSubCapability(
+              'auto',
+              MeterControl.toggle,
+              source: MeterStateSource.mode,
+              settable: true,
+            ),
+            MeterSubCapability(
+              'MIN_MAX_AVG',
+              MeterControl.label,
+              source: MeterStateSource.mode,
+            ),
+            MeterSubCapability(
+              'HOLD',
+              MeterControl.label,
+              source: MeterStateSource.mode,
+            ),
+            MeterSubCapability('flash', MeterControl.button, settable: true),
+            MeterSubCapability('hidden', MeterControl.none),
+          ],
+        ),
+      ],
+    );
+
+    testWidgets('a feature toggle switches', (tester) async {
+      await pump(tester, capabilities: features);
+      await tester.tap(find.widgetWithText(FilterChip, 'auto'));
+      await tester.pump();
+      expect(calls, ['light/auto=true']);
+    });
+
+    testWidgets('a label shows only while active', (tester) async {
+      await pump(tester, capabilities: features);
+      // Declared by the feature, so not repeated as an undeclared value.
+      expect(find.widgetWithText(Chip, 'Min Max'), findsOneWidget);
+      expect(find.text('Hold'), findsNothing);
+    });
+
+    testWidgets('feature buttons and hidden ones are not in the panel', (
+      tester,
+    ) async {
+      await pump(tester, capabilities: features);
+      expect(find.text('light flash'), findsNothing);
+      expect(find.text('light hidden'), findsNothing);
+    });
+
+    testWidgets('a button of a mode is pressed in the panel', (tester) async {
+      await pump(
+        tester,
+        capabilities: const MeterCapabilities(
+          measurements: [
+            MeterCapability(
+              'MV_AC',
+              subCapabilities: [
+                MeterSubCapability('zero', MeterControl.button, settable: true),
+                MeterSubCapability('reset', MeterControl.button),
+              ],
+            ),
+          ],
+        ),
+      );
+      expect(
+        tester
+            .widget<ActionChip>(find.widgetWithText(ActionChip, 'MV AC reset'))
+            .onPressed,
+        isNull,
+      );
+      await tester.tap(find.widgetWithText(ActionChip, 'MV AC zero'));
+      await tester.pump();
+      expect(calls, ['MV_AC/zero=true']);
+    });
   });
 
   testWidgets('NONE is no subfunction', (tester) async {
@@ -173,11 +266,8 @@ void main() {
             features: [
               MeterCapability(
                 MeterFeatures.properties,
-                subFunctions: [
-                  MeterSubFunction(
-                    MeterFeatures.read,
-                    MeterSubFunctionKind.action,
-                  ),
+                subCapabilities: [
+                  MeterSubCapability(MeterFeatures.read, MeterControl.none),
                 ],
               ),
             ],
