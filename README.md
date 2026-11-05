@@ -39,6 +39,35 @@ and CMake 3.22.1; libusb is built from `android/app/src/main/cpp/`.
 
 **Web:** Chrome and Edge only, over HTTPS or localhost.
 
+## Signing
+
+Android release builds are signed with the key in `android/key.properties`
+(never commit it or the keystore). Without that file they use the debug key,
+which is only good for testing: such an APK cannot update an installed app
+signed with another key.
+
+```sh
+PASSWORD=$(openssl rand -hex 24)
+keytool -genkeypair -keystore release.jks -alias release -keyalg RSA \
+  -keysize 4096 -validity 10000 -storepass "$PASSWORD" -dname "CN=Multimeter Viewer"
+```
+
+Keep `release.jks` and the password safe outside of GitHub: without them, no
+updates for installed apps are possible.
+
+For a local build, create `android/key.properties`:
+
+```properties
+storeFile=/path/to/release.jks
+storePassword=<password>
+keyAlias=release
+keyPassword=<password>
+```
+
+For GitHub Actions, add the repository secrets `ANDROID_KEYSTORE_BASE64`
+(`base64 -i release.jks`), `ANDROID_KEYSTORE_PASSWORD` and `ANDROID_KEY_ALIAS`.
+Pull requests always use the debug key.
+
 ## Limitations
 
 - On macOS, Apple's FTDI driver may claim the cable; connecting then fails.
